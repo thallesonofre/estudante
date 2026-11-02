@@ -25,6 +25,7 @@ O projeto foi estruturado com base em **perfis de acesso (roles)**, garantindo q
 - Acesso **total** ao sistema.
 - Realiza o **controle gerencial** de professores, alunos e funcionários da escola.
 - Gerencia cadastros, permissões e acompanha o desempenho geral da instituição.
+- Controla o mural de avisos da escola.
 
 ---
 
