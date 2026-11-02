@@ -1,0 +1,105 @@
+<% content_for :page_title, "Gestão de Usuários e Permissões" %>
+<% content_for :page_subtitle, "Controle gerencial de diretores, professores, alunos e funcionários da instituição." %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <div class="d-flex flex-wrap gap-2">
+    <%= link_to users_path, class: "btn btn-sm #{@role_filter.blank? ? 'btn-indigo' : 'btn-light border fw-semibold'}" do %>
+      Todos (<%= @counts[:all] %>)
+    <% end %>
+    <%= link_to users_path(role: :teacher), class: "btn btn-sm #{@role_filter == 'teacher' ? 'btn-indigo' : 'btn-light border fw-semibold'}" do %>
+      Professores (<%= @counts[:teacher] %>)
+    <% end %>
+    <%= link_to users_path(role: :student), class: "btn btn-sm #{@role_filter == 'student' ? 'btn-indigo' : 'btn-light border fw-semibold'}" do %>
+      Alunos (<%= @counts[:student] %>)
+    <% end %>
+    <%= link_to users_path(role: :staff), class: "btn btn-sm #{@role_filter == 'staff' ? 'btn-indigo' : 'btn-light border fw-semibold'}" do %>
+      Funcionários (<%= @counts[:staff] %>)
+    <% end %>
+    <%= link_to users_path(role: :director), class: "btn btn-sm #{@role_filter == 'director' ? 'btn-indigo' : 'btn-light border fw-semibold'}" do %>
+      Direção (<%= @counts[:director] %>)
+    <% end %>
+  </div>
+
+  <div class="d-flex gap-2">
+    <%= form_with url: users_path, method: :get, local: true, class: "d-flex gap-2" do %>
+      <input type="hidden" name="role" value="<%= @role_filter %>">
+      <input type="text" name="q" value="<%= @query %>" placeholder="Buscar nome, matrícula ou e-mail..." class="form-control form-control-sm" style="width: 240px;">
+      <button type="submit" class="btn btn-sm btn-light border"><i class="bi bi-search"></i></button>
+    <% end %>
+
+    <%= link_to new_user_path(role: @role_filter.presence || :student), class: "btn btn-sm btn-indigo" do %>
+      <i class="bi bi-person-plus-fill me-1"></i>Novo Cadastro
+    <% end %>
+  </div>
+</div>
+
+<div class="glass-card overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-premium">
+      <thead>
+        <tr>
+          <th>Nome / E-mail</th>
+          <th>Matrícula / Registro</th>
+          <th>Perfil de Acesso</th>
+          <th>Vínculo / Turma / Cargo</th>
+          <th class="text-center">Status</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="avatar-circle <%= user.role_badge_color %>" style="width: 36px; height: 36px; font-size: 0.8rem;">
+                  <%= user.initials %>
+                </div>
+                <div>
+                  <div class="fw-bold"><%= user.name %></div>
+                  <div class="text-muted small"><%= user.email %></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge bg-light text-dark border"><%= user.registration_number %></span></td>
+            <td>
+              <span class="badge-role <%= user.role_badge_color %>"><%= user.role_label %></span>
+            </td>
+            <td>
+              <% if user.student? %>
+                <span class="small fw-semibold"><%= user.current_classroom&.name || "Sem turma vinculada" %></span>
+              <% elsif user.teacher? %>
+                <span class="small text-secondary"><%= user.department.presence || "Docente" %></span>
+              <% else %>
+                <span class="small text-secondary"><%= user.job_title.presence || user.department.presence || "Administração Escolar" %></span>
+              <% end %>
+            </td>
+            <td class="text-center">
+              <% if user.active? %>
+                <span class="status-badge status-success">Ativo</span>
+              <% else %>
+                <span class="status-badge status-neutral">Inativo</span>
+              <% end %>
+            </td>
+            <td class="text-end">
+              <div class="d-inline-flex gap-1">
+                <% if user.student? %>
+                  <%= link_to report_card_path(student_id: user.id), class: "btn btn-sm btn-light border", title: "Ver Boletim" do %>
+                    <i class="bi bi-award text-primary"></i>
+                  <% end %>
+                <% end %>
+                <%= link_to edit_user_path(user), class: "btn btn-sm btn-light border", title: "Editar" do %>
+                  <i class="bi bi-pencil"></i>
+                <% end %>
+                <% if user != current_user %>
+                  <%= button_to user_path(user), method: :delete, class: "btn btn-sm btn-light border text-danger", title: "Remover" do %>
+                    <i class="bi bi-trash"></i>
+                  <% end %>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

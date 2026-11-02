@@ -1,0 +1,76 @@
+<div class="glass-card p-4" style="max-width: 780px;">
+  <%= form_with model: @user, local: true do |f| %>
+    <% if @user.errors.any? %>
+      <div class="alert alert-custom-danger mb-3">
+        <%= @user.errors.full_messages.to_sentence %>
+      </div>
+    <% end %>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= f.label :name, "Nome Completo", class: "form-label small fw-bold" %>
+        <%= f.text_field :name, required: true, class: "form-control", placeholder: "Ex.: Ana Beatriz Oliveira" %>
+      </div>
+
+      <div class="col-md-6">
+        <%= f.label :email, "E-mail Institucional", class: "form-label small fw-bold" %>
+        <%= f.email_field :email, required: true, class: "form-control", placeholder: "usuario@estudante.edu.br" %>
+      </div>
+
+      <div class="col-md-4">
+        <%= f.label :role, "Perfil de Acesso (Role)", class: "form-label small fw-bold" %>
+        <%= f.select :role,
+                     [["Aluno(a)", "student"], ["Professor(a)", "teacher"], ["Funcionário(a)", "staff"], ["Diretor(a)", "director"]],
+                     {},
+                     class: "form-select" %>
+      </div>
+
+      <div class="col-md-4">
+        <%= f.label :registration_number, "Matrícula / Registro", class: "form-label small fw-bold" %>
+        <%= f.text_field :registration_number, class: "form-control", placeholder: "Gerado automaticamente se vazio" %>
+      </div>
+
+      <div class="col-md-4">
+        <%= f.label :phone, "Telefone / Contato", class: "form-label small fw-bold" %>
+        <%= f.text_field :phone, class: "form-control", placeholder: "(11) 99999-0000" %>
+      </div>
+
+      <div class="col-md-6">
+        <%= f.label :department, "Departamento / Área (Professores/Equipe)", class: "form-label small fw-bold" %>
+        <%= f.text_field :department, class: "form-control", placeholder: "Ex.: Ciências Exatas, Secretaria Escolar" %>
+      </div>
+
+      <div class="col-md-6">
+        <%= f.label :job_title, "Cargo / Função (Funcionários/Direção)", class: "form-label small fw-bold" %>
+        <%= f.text_field :job_title, class: "form-control", placeholder: "Ex.: Coordenador Pedagógico, Secretária" %>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label small fw-bold">Enturmar Aluno (Se perfil Aluno)</label>
+        <select name="classroom_id" class="form-select">
+          <option value="">Selecione uma turma (opcional)</option>
+          <% @classrooms.each do |c| %>
+            <option value="<%= c.id %>" <%= "selected" if @user.current_classroom&.id == c.id %>><%= c.full_title %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <%= f.label :password, "Senha de Acesso", class: "form-label small fw-bold" %>
+        <%= f.password_field :password, class: "form-control", placeholder: @user.new_record? ? "Padrão se vazio: escola123" : "Deixe em branco para manter a atual" %>
+      </div>
+
+      <div class="col-12">
+        <div class="form-check">
+          <%= f.check_box :active, class: "form-check-input" %>
+          <%= f.label :active, "Cadastro ativo no sistema escolar", class: "form-check-label small fw-semibold" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+      <%= link_to "Cancelar", users_path, class: "btn btn-light border" %>
+      <%= f.submit "Salvar Cadastro", class: "btn btn-indigo px-4" %>
+    </div>
+  <% end %>
+</div>

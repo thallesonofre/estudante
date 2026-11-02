@@ -1,0 +1,80 @@
+<% content_for :page_title, "Mural de Avisos da Escola" %>
+<% content_for :page_subtitle, "Comunicados oficiais, calendário de provas, reuniões pedagógicas e avisos da Direção." %>
+
+<div class="row g-4">
+  <div class="col-lg-<%= current_user.director? ? '7' : '12' %>">
+    <div class="d-flex flex-column gap-3">
+      <% @announcements.each do |ann| %>
+        <div class="glass-card p-4 <%= 'border-danger border-2' if ann.urgent? %>">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge <%= ann.urgent? ? 'bg-danger' : (ann.important? ? 'bg-warning text-dark' : 'bg-primary') %>">
+                <% if ann.pinned? %><i class="bi bi-pin-angle-fill me-1"></i>Fixado • <% end %>
+                <%= ann.priority_label %>
+              </span>
+              <span class="badge bg-light text-secondary border">
+                <i class="bi bi-people me-1"></i><%= ann.audience_label %>
+              </span>
+            </div>
+
+            <% if current_user.director? %>
+              <%= button_to announcement_path(ann), method: :delete, class: "btn btn-sm btn-light border text-danger", title: "Excluir aviso" do %>
+                <i class="bi bi-trash"></i>
+              <% end %>
+            <% end %>
+          </div>
+
+          <h5 class="fw-bold mb-2"><%= ann.title %></h5>
+          <p class="text-secondary mb-3" style="white-space: pre-line;"><%= ann.content %></p>
+
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top text-muted small">
+            <span><i class="bi bi-person-badge me-1"></i>Publicado por <strong><%= ann.author.name %></strong> (<%= ann.author.role_label %>)</span>
+            <span><i class="bi bi-clock me-1"></i><%= format_br_datetime(ann.published_at) %></span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if current_user.director? %>
+    <div class="col-lg-5">
+      <div class="glass-card p-4">
+        <h5 class="fw-bold mb-1"><i class="bi bi-megaphone-fill text-primary me-2"></i>Publicar no Mural da Escola</h5>
+        <p class="text-muted small mb-3">A Direção controla os avisos exibidos para professores, alunos e funcionários.</p>
+
+        <%= form_with model: @announcement, local: true do |f| %>
+          <div class="mb-3">
+            <%= f.label :title, "Título do Comunicado", class: "form-label small fw-bold" %>
+            <%= f.text_field :title, required: true, class: "form-control", placeholder: "Ex.: Calendário de Provas do 4º Bimestre" %>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <%= f.label :priority, "Prioridade", class: "form-label small fw-bold" %>
+              <%= f.select :priority, [["Informativo", "normal"], ["Importante", "important"], ["Urgente", "urgent"]], {}, class: "form-select" %>
+            </div>
+            <div class="col-6">
+              <%= f.label :audience, "Público-Alvo", class: "form-label small fw-bold" %>
+              <%= f.select :audience,
+                           [["Toda a Escola", "everyone"], ["Apenas Professores", "teachers_only"], ["Apenas Alunos", "students_only"], ["Funcionários", "staff_only"]],
+                           {},
+                           class: "form-select" %>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :content, "Conteúdo da Mensagem", class: "form-label small fw-bold" %>
+            <%= f.text_area :content, rows: 5, required: true, class: "form-control", placeholder: "Digite o comunicado oficial da direção..." %>
+          </div>
+
+          <div class="form-check mb-3">
+            <%= f.check_box :pinned, class: "form-check-input" %>
+            <%= f.label :pinned, "Fixar comunicado no topo do mural", class: "form-check-label small fw-semibold" %>
+          </div>
+
+          <%= f.submit "Publicar Aviso Oficial", class: "btn btn-indigo w-100" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

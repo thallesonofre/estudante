@@ -1,0 +1,33 @@
+<div class="glass-card overflow-hidden">
+  <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+    <div>
+      <h5 class="fw-bold mb-0"><i class="bi bi-megaphone-fill text-danger me-2"></i>Mural da Escola</h5>
+      <div class="text-muted small">Comunicados oficiais da Direção</div>
+    </div>
+    <%= link_to "Ver Todos", announcements_path, class: "btn btn-sm btn-light border fw-semibold" %>
+  </div>
+
+  <div class="p-3 d-flex flex-column gap-3">
+    <% if @announcements.any? %>
+      <% @announcements.each do |ann| %>
+        <div class="p-3 rounded-3 <%= ann.urgent? ? 'spatial-notice-urgent' : 'border bg-light' %>">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge <%= ann.urgent? ? 'bg-danger text-white' : (ann.important? ? 'bg-warning text-dark' : 'bg-secondary text-white') %>">
+              <% if ann.pinned? %><i class="bi bi-pin-angle-fill me-1"></i><% end %>
+              <%= ann.priority_label %>
+            </span>
+            <span class="text-muted" style="font-size: 0.73rem;"><%= format_br_date(ann.published_at) %></span>
+          </div>
+          <div class="fw-bold text-white mb-1"><%= ann.title %></div>
+          <div class="text-secondary small mb-2"><%= truncate(ann.content, length: 130) %></div>
+          <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 0.72rem;">
+            <span><i class="bi bi-person-circle me-1"></i><%= ann.author.name %></span>
+            <span><i class="bi bi-people me-1"></i><%= ann.audience_label %></span>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="text-center py-4 text-muted small">Nenhum comunicado publicado no momento.</div>
+    <% end %>
+  </div>
+</div>

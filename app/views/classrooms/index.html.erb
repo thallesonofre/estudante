@@ -1,0 +1,74 @@
+<% content_for :page_title, "Gestão de Turmas e Matrículas" %>
+<% content_for :page_subtitle, "Organização das turmas, séries, turnos e enturmação de alunos." %>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="row g-3">
+      <% @classrooms.each do |c| %>
+        <div class="col-md-6">
+          <div class="glass-card p-3 h-100 glass-card-hover d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <span class="badge bg-primary-subtle text-primary mb-1"><%= c.academic_year %> • <%= c.shift %></span>
+                  <h5 class="fw-bold mb-0"><%= c.name %></h5>
+                  <div class="text-muted small"><%= c.grade_level %> • Sala <%= c.room_number.presence || "Padrão" %></div>
+                </div>
+                <span class="stat-icon stat-icon-indigo" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                  <i class="bi bi-door-open-fill"></i>
+                </span>
+              </div>
+
+              <div class="d-flex gap-3 my-3 py-2 px-3 bg-light rounded-3 border">
+                <div>
+                  <div class="text-muted" style="font-size: 0.72rem;">Alunos Matriculados</div>
+                  <div class="fw-bold"><%= c.students.size %> alunos</div>
+                </div>
+                <div class="border-start ps-3">
+                  <div class="text-muted" style="font-size: 0.72rem;">Grade Curricular</div>
+                  <div class="fw-bold"><%= c.subjects.size %> disciplinas</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+              <%= link_to classroom_path(c), class: "btn btn-sm btn-indigo w-100" do %>
+                <i class="bi bi-folder2-open me-1"></i>Gerenciar Alunos e Grade
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if current_user.director? %>
+    <div class="col-lg-4">
+      <div class="glass-card p-3">
+        <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Nova Turma</h5>
+        <%= form_with model: @new_classroom, local: true do |f| %>
+          <div class="mb-3">
+            <%= f.label :name, "Código / Nome da Turma", class: "form-label small fw-bold" %>
+            <%= f.text_field :name, required: true, class: "form-control", placeholder: "Ex.: 3º Ano B" %>
+          </div>
+          <div class="mb-3">
+            <%= f.label :grade_level, "Nível de Ensino", class: "form-label small fw-bold" %>
+            <%= f.select :grade_level, ["Ensino Médio", "Ensino Fundamental II", "Curso Técnico Integrado"], {}, class: "form-select" %>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <%= f.label :shift, "Turno", class: "form-label small fw-bold" %>
+              <%= f.select :shift, ["Matutino", "Vespertino", "Integral", "Noturno"], {}, class: "form-select" %>
+            </div>
+            <div class="col-6">
+              <%= f.label :room_number, "Sala", class: "form-label small fw-bold" %>
+              <%= f.text_field :room_number, class: "form-control", placeholder: "Sala 204" %>
+            </div>
+          </div>
+          <%= f.hidden_field :academic_year, value: 2026 %>
+          <%= f.submit "Criar Turma", class: "btn btn-indigo w-100" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

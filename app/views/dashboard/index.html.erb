@@ -1,0 +1,436 @@
+<% content_for :page_title do %>
+  <% if current_user.director? || current_user.staff? %>
+    Painel Gerencial da Direção
+  <% elsif current_user.teacher? %>
+    Central do Professor
+  <% else %>
+    Meu Painel Acadêmico
+  <% end %>
+<% end %>
+
+<% content_for :page_subtitle do %>
+  Olá, <strong><%= current_user.name %></strong> (<%= current_user.role_label %>) • Acompanhe os indicadores em tempo real.
+<% end %>
+
+<% if current_user.director? || current_user.staff? %>
+  <!-- DIRECTOR / STAFF EXECUTIVE DASHBOARD -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3 col-sm-6">
+      <div class="glass-card stat-card glass-card-hover">
+        <div>
+          <div class="stat-label">Alunos Matriculados</div>
+          <div class="stat-value"><%= @total_students %></div>
+          <div class="stat-meta"><i class="bi bi-door-open me-1"></i>Em <%= @total_classrooms %> turmas ativas</div>
+        </div>
+        <div class="stat-icon stat-icon-emerald">
+          <i class="bi bi-mortarboard-fill"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="glass-card stat-card glass-card-hover">
+        <div>
+          <div class="stat-label">Corpo Docente & Equipe</div>
+          <div class="stat-value"><%= @total_teachers + @total_staff %></div>
+          <div class="stat-meta"><%= @total_teachers %> professores • <%= @total_staff %> funcionários</div>
+        </div>
+        <div class="stat-icon stat-icon-indigo">
+          <i class="bi bi-people-fill"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="glass-card stat-card glass-card-hover">
+        <div>
+          <div class="stat-label">Frequência Institucional</div>
+          <div class="stat-value"><%= @overall_attendance_rate %>%</div>
+          <div class="stat-meta">Meta mínima legal: 75,0%</div>
+        </div>
+        <div class="stat-icon stat-icon-cyan">
+          <i class="bi bi-calendar2-check-fill"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="glass-card stat-card glass-card-hover">
+        <div>
+          <div class="stat-label">Média Geral da Escola</div>
+          <div class="stat-value"><%= format_grade(@overall_grade_average) %></div>
+          <div class="stat-meta"><%= @total_subjects %> disciplinas monitoradas</div>
+        </div>
+        <div class="stat-icon stat-icon-amber">
+          <i class="bi bi-graph-up-arrow"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions Bar for Director -->
+  <% if current_user.director? %>
+    <% pending_requests_count = AccessRequest.pending.count %>
+    <% if pending_requests_count.positive? %>
+      <div class="glass-card p-3 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-2" style="background: rgba(245, 158, 11, 0.14); border: 1px solid rgba(245, 158, 11, 0.45);">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold">
+            <i class="bi bi-shield-exclamation me-1"></i><%= pending_requests_count %> Solicitação(ões) de Acesso Pendente(s)
+          </span>
+          <span class="text-white small fw-medium">Existem instituições/usuários aguardando sua aprovação para testar o sistema.</span>
+        </div>
+        <%= link_to access_requests_path(status: :pending), class: "btn btn-sm btn-indigo rounded-3" do %>
+          <i class="bi bi-check2-circle me-1"></i>Analisar e Liberar Acessos
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="glass-card p-3 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <span class="spatial-badge">
+          <i class="bi bi-sliders"></i> Ações Gerenciais Rápidas
+        </span>
+        <span class="text-muted small d-none d-md-inline">Acesso total a cadastros, chamadas, notas e mural institucional.</span>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <%= link_to new_user_path(role: :student), class: "btn btn-sm btn-light border rounded-3 fw-semibold" do %>
+          <i class="bi bi-person-plus-fill text-warning me-1"></i>Novo Aluno
+        <% end %>
+        <%= link_to new_user_path(role: :teacher), class: "btn btn-sm btn-light border rounded-3 fw-semibold" do %>
+          <i class="bi bi-person-workspace text-info me-1"></i>Novo Professor
+        <% end %>
+        <%= link_to new_user_path(role: :staff), class: "btn btn-sm btn-light border rounded-3 fw-semibold" do %>
+          <i class="bi bi-person-badge text-emerald me-1"></i>Novo Funcionário
+        <% end %>
+        <%= link_to attendance_registers_path, class: "btn btn-sm btn-light border rounded-3 fw-semibold" do %>
+          <i class="bi bi-calendar-check me-1"></i>Auditar Chamadas
+        <% end %>
+        <%= link_to gradebooks_path, class: "btn btn-sm btn-indigo rounded-3" do %>
+          <i class="bi bi-journal-check me-1"></i>Auditar Notas
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row g-4 mb-4">
+    <!-- Classroom Performance Table -->
+    <div class="col-lg-7">
+      <div class="glass-card h-100 overflow-hidden">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Desempenho por Turma</h5>
+            <div class="text-muted small">Média de notas e índice de presença consolidados por turma</div>
+          </div>
+          <%= link_to "Gerenciar Turmas", classrooms_path, class: "btn btn-sm btn-light border fw-semibold" %>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-premium">
+            <thead>
+              <tr>
+                <th>Turma</th>
+                <th class="text-center">Alunos</th>
+                <th class="text-center">Disciplinas</th>
+                <th class="text-center">Frequência</th>
+                <th class="text-center">Média Geral</th>
+                <th class="text-end">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @classroom_stats.each do |stat| %>
+                <% c = stat[:classroom] %>
+                <tr>
+                  <td>
+                    <div class="fw-bold"><%= c.name %></div>
+                    <div class="text-muted small"><%= c.grade_level %> • <%= c.shift %></div>
+                  </td>
+                  <td class="text-center"><span class="badge bg-light text-dark border"><%= stat[:students_count] %></span></td>
+                  <td class="text-center"><span class="badge bg-light text-dark border"><%= stat[:subjects_count] %></span></td>
+                  <td class="text-center">
+                    <span class="status-badge <%= stat[:attendance_rate] >= 85 ? 'status-success' : 'status-warning' %>">
+                      <%= stat[:attendance_rate] %>%
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span class="grade-pill <%= grade_color_class(stat[:average_score]) %>">
+                      <%= format_grade(stat[:average_score]) %>
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <%= link_to classroom_path(c), class: "btn btn-sm btn-light border rounded-3" do %>
+                      Detalhes
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Bimester Evolution Footer -->
+        <div class="p-3 bg-light border-top">
+          <div class="small fw-bold text-uppercase text-muted mb-2">Evolução Institucional por Bimestre</div>
+          <div class="row g-2 text-center">
+            <% [1, 2, 3, 4].each do |bim| %>
+              <div class="col-3">
+                <div class="p-2 bg-white rounded-3 border">
+                  <div class="text-muted" style="font-size: 0.72rem;"><%= bim %>º Bimestre</div>
+                  <div class="fw-bold fs-6 <%= grade_color_class(@bimester_averages[bim]) %> px-2 rounded mt-1 d-inline-block">
+                    <%= @bimester_averages[bim].positive? ? format_grade(@bimester_averages[bim]) : "—" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pedagogical Radar & Announcements -->
+    <div class="col-lg-5 d-flex flex-column gap-4">
+      <div class="glass-card overflow-hidden">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="fw-bold mb-0"><i class="bi bi-exclamation-diamond-fill text-warning me-2"></i>Radar Pedagógico</h5>
+            <div class="text-muted small">Alunos com média abaixo de 6,0 ou baixa frequência</div>
+          </div>
+          <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill"><%= @attention_students.size %> alerta(s)</span>
+        </div>
+        <div class="p-3">
+          <% if @attention_students.any? %>
+            <div class="d-flex flex-column gap-2">
+              <% @attention_students.first(5).each do |item| %>
+                <div class="p-2 rounded-3 border bg-light d-flex align-items-center justify-content-between">
+                  <div>
+                    <div class="fw-bold small"><%= item[:student].name %></div>
+                    <div class="text-muted" style="font-size: 0.75rem;"><%= item[:classroom].name %> • <%= item[:absences] %> faltas</div>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="grade-pill <%= grade_color_class(item[:average]) %>">
+                      Média: <%= format_grade(item[:average]) %>
+                    </span>
+                    <%= link_to report_card_path(student_id: item[:student].id), class: "btn btn-sm btn-white border", title: "Ver Boletim" do %>
+                      <i class="bi bi-eye"></i>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-3 text-muted small">
+              <i class="bi bi-check2-circle text-success fs-4 d-block mb-1"></i>
+              Todos os alunos estão acima dos parâmetros mínimos!
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- School Notice Board Widget -->
+      <%= render "dashboard/announcements_widget" %>
+    </div>
+  </div>
+
+<% elsif current_user.teacher? %>
+  <!-- TEACHER DASHBOARD -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="glass-card stat-card">
+        <div>
+          <div class="stat-label">Minhas Disciplinas</div>
+          <div class="stat-value"><%= @subjects.size %></div>
+          <div class="stat-meta">Atribuídas no ano letivo 2026</div>
+        </div>
+        <div class="stat-icon stat-icon-indigo"><i class="bi bi-book-half"></i></div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="glass-card stat-card">
+        <div>
+          <div class="stat-label">Meus Alunos</div>
+          <div class="stat-value"><%= @total_students %></div>
+          <div class="stat-meta">Total de estudantes nas minhas turmas</div>
+        </div>
+        <div class="stat-icon stat-icon-emerald"><i class="bi bi-people-fill"></i></div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="glass-card stat-card">
+        <div>
+          <div class="stat-label">Avaliações Lançadas</div>
+          <div class="stat-value"><%= @total_assessments %></div>
+          <div class="stat-meta">Notas registradas nos 4 bimestres</div>
+        </div>
+        <div class="stat-icon stat-icon-amber"><i class="bi bi-journal-check"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="glass-card overflow-hidden">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="fw-bold mb-0"><i class="bi bi-easel2-fill text-primary me-2"></i>Minhas Turmas e Disciplinas</h5>
+            <div class="text-muted small">Acesse rapidamente a chamada ou o lançamento de notas por bimestre</div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-premium">
+            <thead>
+              <tr>
+                <th>Disciplina / Código</th>
+                <th>Turma</th>
+                <th class="text-center">Alunos</th>
+                <th class="text-center">Presença Média</th>
+                <th class="text-center">Média Anual</th>
+                <th class="text-end">Ações do Professor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @subject_summaries.each do |item| %>
+                <% sub = item[:subject] %>
+                <tr>
+                  <td>
+                    <div class="fw-bold"><%= sub.name %></div>
+                    <div class="text-muted small"><span class="badge bg-light text-secondary border"><%= sub.code %></span> • <%= sub.workload_hours %>h</div>
+                  </td>
+                  <td>
+                    <div class="fw-semibold"><%= sub.classroom.name %></div>
+                    <div class="text-muted small"><%= sub.classroom.shift %></div>
+                  </td>
+                  <td class="text-center"><span class="badge bg-light text-dark border"><%= item[:students_count] %></span></td>
+                  <td class="text-center">
+                    <span class="status-badge status-success"><%= item[:attendance_rate] %>%</span>
+                  </td>
+                  <td class="text-center">
+                    <span class="grade-pill <%= grade_color_class(item[:class_average]) %>">
+                      <%= format_grade(item[:class_average]) %>
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <div class="d-inline-flex gap-1">
+                      <%= link_to attendance_registers_path(subject_id: sub.id), class: "btn btn-sm btn-light border rounded-3 fw-semibold" do %>
+                        <i class="bi bi-calendar2-check text-warning me-1"></i>Chamada
+                      <% end %>
+                      <%= link_to gradebooks_path(subject_id: sub.id), class: "btn btn-sm btn-indigo rounded-3" do %>
+                        <i class="bi bi-journal-plus me-1"></i>Notas
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <%= render "dashboard/announcements_widget" %>
+    </div>
+  </div>
+
+<% else %>
+  <!-- STUDENT DASHBOARD -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="glass-card stat-card">
+        <div>
+          <div class="stat-label">Minha Turma Atual</div>
+          <div class="stat-value fs-4"><%= @classroom&.name || "Não enturmado" %></div>
+          <div class="stat-meta"><%= @classroom&.grade_level %> • Turno <%= @classroom&.shift %></div>
+        </div>
+        <div class="stat-icon stat-icon-indigo"><i class="bi bi-door-open-fill"></i></div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="glass-card stat-card">
+        <div>
+          <div class="stat-label">Minha Média Geral Anual</div>
+          <div class="stat-value"><%= format_grade(@global_annual_average) %></div>
+          <div class="stat-meta">Média consolidada entre <%= @subjects.size %> disciplinas</div>
+        </div>
+        <div class="stat-icon stat-icon-emerald"><i class="bi bi-award-fill"></i></div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="glass-card stat-card">
+        <div>
+          <div class="stat-label">Minha Frequência Geral</div>
+          <div class="stat-value"><%= @global_attendance_rate %>%</div>
+          <div class="stat-meta"><%= @total_absences %> falta(s) em <%= @total_classes %> aulas registradas</div>
+        </div>
+        <div class="stat-icon stat-icon-cyan"><i class="bi bi-clock-history"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="glass-card overflow-hidden">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="fw-bold mb-0"><i class="bi bi-journal-richtext text-primary me-2"></i>Resumo de Notas e Faltas por Disciplina</h5>
+            <div class="text-muted small">Cálculo automático das médias bimestrais e média anual</div>
+          </div>
+          <%= link_to report_card_path, class: "btn btn-sm btn-indigo" do %>
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i>Ver Boletim Completo
+          <% end %>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-premium">
+            <thead>
+              <tr>
+                <th>Disciplina</th>
+                <th class="text-center">1º Bim</th>
+                <th class="text-center">2º Bim</th>
+                <th class="text-center">3º Bim</th>
+                <th class="text-center">4º Bim</th>
+                <th class="text-center">Média Anual</th>
+                <th class="text-center">Faltas</th>
+                <th class="text-center">Situação</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @subject_reports.each do |rep| %>
+                <tr>
+                  <td>
+                    <div class="fw-bold"><%= rep[:subject].name %></div>
+                    <div class="text-muted small"><%= rep[:subject].teacher.name %></div>
+                  </td>
+                  <% [1, 2, 3, 4].each do |b| %>
+                    <% avg = rep[:bimesters][b][:average] %>
+                    <td class="text-center">
+                      <span class="grade-pill <%= grade_color_class(avg) %>"><%= format_grade(avg) %></span>
+                    </td>
+                  <% end %>
+                  <td class="text-center">
+                    <span class="grade-pill <%= grade_color_class(rep[:annual_average]) %> fw-bold">
+                      <%= format_grade(rep[:annual_average]) %>
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge bg-light text-dark border"><%= rep[:absences_count] %> (<%= rep[:attendance_rate] %>%)</span>
+                  </td>
+                  <td class="text-center">
+                    <span class="status-badge <%= rep[:status][:badge] %>"><%= rep[:status][:label] %></span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <%= render "dashboard/announcements_widget" %>
+    </div>
+  </div>
+<% end %>

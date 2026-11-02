@@ -1,0 +1,168 @@
+<% content_for :page_title, "Diário de Chamada e Controle de Frequência" %>
+<% content_for :page_subtitle, "Registre presenças, faltas, atrasos e faltas justificadas por disciplina e bimestre." %>
+
+<!-- Filter Bar -->
+<div class="glass-card p-3 mb-4">
+  <%= form_with url: attendance_registers_path, method: :get, local: true, class: "row g-3 align-items-end" do %>
+    <div class="col-md-5">
+      <label class="form-label small fw-bold text-secondary mb-1">Disciplina / Turma</label>
+      <select name="subject_id" class="form-select" onchange="this.form.submit()">
+        <% @subjects.each do |sub| %>
+          <option value="<%= sub.id %>" <%= "selected" if @selected_subject&.id == sub.id %>>
+            <%= sub.name %> — <%= sub.classroom.name %> (Prof. <%= sub.teacher.name %>)
+          </option>
+        <% end %>
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label small fw-bold text-secondary mb-1">Data da Aula</label>
+      <input type="date" name="attended_on" value="<%= @selected_date.strftime('%Y-%m-%d') %>" class="form-control" onchange="this.form.submit()">
+    </div>
+
+    <div class="col-md-2">
+      <label class="form-label small fw-bold text-secondary mb-1">Bimestre</label>
+      <select name="bimester" class="form-select" onchange="this.form.submit()">
+        <% [1, 2, 3, 4].each do |bim| %>
+          <option value="<%= bim %>" <%= "selected" if @selected_bimester == bim %>><%= bim %>º Bimestre</option>
+        <% end %>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-indigo w-100">
+        <i class="bi bi-funnel-fill me-1"></i>Carregar
+      </button>
+    </div>
+  <% end %>
+</div>
+
+<% if @selected_subject %>
+  <div class="row g-4">
+    <!-- Roll Call Form -->
+    <div class="col-lg-8">
+      <div class="glass-card overflow-hidden">
+        <%= form_with url: attendance_registers_path, method: :post, local: true do %>
+          <input type="hidden" name="subject_id" value="<%= @selected_subject.id %>">
+          <input type="hidden" name="attended_on" value="<%= @selected_date.strftime('%Y-%m-%d') %>">
+          <input type="hidden" name="bimester" value="<%= @selected_bimester %>">
+
+          <div class="p-3 border-bottom bg-light d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+              <h5 class="fw-bold mb-0">
+                <i class="bi bi-person-check-fill text-primary me-2"></i><%= @selected_subject.name %> • <%= @selected_subject.classroom.name %>
+              </h5>
+              <div class="text-muted small">
+                Chamada do dia <strong><%= format_br_date(@selected_date) %></strong> (<%= @selected_bimester %>º Bimestre) • <%= @students.size %> alunos matriculados
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-outline-success fw-semibold" onclick="document.querySelectorAll('input[value=present]').forEach(el => el.checked = true)">
+                <i class="bi bi-check-all me-1"></i>Marcar Todos Presentes
+              </button>
+            </div>
+          </div>
+
+          <div class="p-3 border-bottom">
+            <label class="form-label small fw-bold text-secondary mb-1">Conteúdo Ministrado na Aula</label>
+            <input type="text" name="lesson_topic" value="<%= @lesson_topic || "Conteúdo Programático do #{@selected_bimester}º Bimestre" %>" class="form-control" placeholder="Ex.: Equações de 2º Grau e Resolução de Problemas">
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-premium">
+              <thead>
+                <tr>
+                  <th>Estudante / Matrícula</th>
+                  <th class="text-center">Status na Chamada</th>
+                  <th>Observação / Justificativa</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @students.each do |student| %>
+                  <% record = @attendance_map[student.id] %>
+                  <% current_status = record&.status || "present" %>
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-circle badge-student" style="width: 34px; height: 34px; font-size: 0.78rem;">
+                          <%= student.initials %>
+                        </div>
+                        <div>
+                          <div class="fw-bold"><%= student.name %></div>
+                          <div class="text-muted" style="font-size: 0.75rem;"><%= student.registration_number %></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-center">
+                      <div class="attendance-radio-group">
+                        <input type="radio" id="att_<%= student.id %>_present" name="attendances[<%= student.id %>][status]" value="present" <%= "checked" if current_status == "present" %>>
+                        <label for="att_<%= student.id %>_present"><i class="bi bi-check-lg me-1"></i>Presente</label>
+
+                        <input type="radio" id="att_<%= student.id %>_absent" name="attendances[<%= student.id %>][status]" value="absent" <%= "checked" if current_status == "absent" %>>
+                        <label for="att_<%= student.id %>_absent"><i class="bi bi-x-lg me-1"></i>Falta</label>
+
+                        <input type="radio" id="att_<%= student.id %>_late" name="attendances[<%= student.id %>][status]" value="late" <%= "checked" if current_status == "late" %>>
+                        <label for="att_<%= student.id %>_late">Atraso</label>
+
+                        <input type="radio" id="att_<%= student.id %>_justified" name="attendances[<%= student.id %>][status]" value="justified" <%= "checked" if current_status == "justified" %>>
+                        <label for="att_<%= student.id %>_justified">Justificada</label>
+                      </div>
+                    </td>
+                    <td>
+                      <input type="text" name="attendances[<%= student.id %>][justification]" value="<%= record&.justification %>" class="form-control form-control-sm" placeholder="Atestado / Observação opcional">
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center">
+            <span class="text-muted small">
+              <% if @attendance_map.any? %>
+                <span class="text-success fw-semibold"><i class="bi bi-patch-check-fill me-1"></i>Chamada já registrada para esta data (você pode atualizar os dados).</span>
+              <% else %>
+                <span><i class="bi bi-info-circle me-1"></i>Nova chamada pronta para gravação.</span>
+              <% end %>
+            </span>
+            <button type="submit" class="btn btn-indigo px-4 py-2 shadow-sm">
+              <i class="bi bi-cloud-check-fill me-2"></i>Salvar Chamada da Turma
+            </button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Recent Sessions Sidebar -->
+    <div class="col-lg-4">
+      <div class="glass-card overflow-hidden">
+        <div class="p-3 border-bottom">
+          <h5 class="fw-bold mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Histórico de Chamadas</h5>
+          <div class="text-muted small">Aulas registradas em <%= @selected_subject.name %></div>
+        </div>
+
+        <div class="p-3 d-flex flex-column gap-2">
+          <% if @recent_sessions.any? %>
+            <% @recent_sessions.each do |sess| %>
+              <%= link_to attendance_registers_path(subject_id: @selected_subject.id, attended_on: sess.attended_on, bimester: sess.bimester),
+                          class: "p-3 rounded-3 border text-decoration-none text-dark d-flex justify-content-between align-items-center #{sess.attended_on == @selected_date ? 'border-primary bg-primary-subtle bg-opacity-25' : 'bg-light'}" do %>
+                <div>
+                  <div class="fw-bold small"><%= format_br_date(sess.attended_on) %> • <span class="text-primary"><%= sess.bimester %>º Bim</span></div>
+                  <div class="text-muted" style="font-size: 0.76rem;"><%= truncate(sess.lesson_topic.to_s, length: 42) %></div>
+                </div>
+                <div class="text-end">
+                  <span class="status-badge <%= sess.absences_count.to_i.zero? ? 'status-success' : 'status-warning' %>">
+                    <%= sess.absences_count %> falta(s)
+                  </span>
+                </div>
+              <% end %>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4 text-muted small">Nenhuma chamada registrada ainda nesta disciplina.</div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

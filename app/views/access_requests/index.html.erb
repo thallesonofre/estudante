@@ -1,0 +1,114 @@
+<% content_for :page_title, "Solicitações de Acesso e Testes" %>
+<% content_for :page_subtitle, "Aprove ou recuse pedidos enviados pela página inicial para liberar o acesso ao sistema." %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <div class="d-flex flex-wrap gap-2">
+    <%= link_to access_requests_path, class: "btn btn-sm #{@status_filter.blank? ? 'btn-indigo' : 'btn-light border fw-semibold'}" do %>
+      Todas (<%= @counts[:all] %>)
+    <% end %>
+    <%= link_to access_requests_path(status: :pending), class: "btn btn-sm #{@status_filter == 'pending' ? 'btn-indigo' : 'btn-light border fw-semibold'}" do %>
+      Pendentes (<%= @counts[:pending] %>)
+    <% end %>
+    <%= link_to access_requests_path(status: :approved), class: "btn btn-sm #{@status_filter == 'approved' ? 'btn-indigo' : 'btn-light border fw-semibold'}" do %>
+      Aprovadas (<%= @counts[:approved] %>)
+    <% end %>
+    <%= link_to access_requests_path(status: :rejected), class: "btn btn-sm #{@status_filter == 'rejected' ? 'btn-indigo' : 'btn-light border fw-semibold'}" do %>
+      Recusadas (<%= @counts[:rejected] %>)
+    <% end %>
+  </div>
+</div>
+
+<div class="glass-card overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-premium">
+      <thead>
+        <tr>
+          <th>Instituição / Tipo</th>
+          <th>Solicitante / Contato</th>
+          <th>Perfil Solicitado</th>
+          <th class="text-center">Status</th>
+          <th>Credencial Gerada</th>
+          <th class="text-end">Liberação do Administrador</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @access_requests.any? %>
+          <% @access_requests.each do |req| %>
+            <tr>
+              <td>
+                <div class="fw-bold"><%= req.institution_name %></div>
+                <div class="text-muted small"><%= req.institution_type %></div>
+                <% if req.message.present? %>
+                  <div class="text-secondary mt-1 fst-italic" style="font-size: 0.76rem;">"<%= req.message %>"</div>
+                <% end %>
+              </td>
+              <td>
+                <div class="fw-bold"><%= req.contact_name %></div>
+                <div class="text-muted small"><i class="bi bi-envelope me-1"></i><%= req.email %></div>
+                <% if req.phone.present? %>
+                  <div class="text-muted small"><i class="bi bi-telephone me-1"></i><%= req.phone %></div>
+                <% end %>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border"><%= req.requested_role_label %></span>
+                <div class="text-muted mt-1" style="font-size: 0.7rem;">Em <%= format_br_datetime(req.created_at) %></div>
+              </td>
+              <td class="text-center">
+                <span class="status-badge <%= req.status_badge_class %>"><%= req.status_label %></span>
+              </td>
+              <td>
+                <% if req.approved? %>
+                  <div class="small">
+                    <div><strong>Login:</strong> <%= req.email %></div>
+                    <div><strong>Senha:</strong> <code class="px-2 py-1 bg-light rounded border text-dark fw-bold"><%= req.generated_password %></code></div>
+                  </div>
+                <% else %>
+                  <span class="text-muted small">—</span>
+                <% end %>
+              </td>
+              <td class="text-end" style="min-width: 280px;">
+                <% if req.pending? %>
+                  <div class="d-flex flex-column gap-1 align-items-end">
+                    <%= form_with url: approve_access_request_path(req), method: :patch, local: true, class: "d-flex gap-1 align-items-center justify-content-end" do %>
+                      <select name="role" class="form-select form-select-sm" style="width: 120px;" title="Perfil a liberar">
+                        <option value="director" <%= "selected" if req.wants_director? %>>Diretor</option>
+                        <option value="teacher" <%= "selected" if req.wants_teacher? %>>Professor</option>
+                        <option value="student" <%= "selected" if req.wants_student? %>>Aluno</option>
+                        <option value="staff" <%= "selected" if req.wants_staff? %>>Funcionário</option>
+                      </select>
+                      <input type="text" name="custom_password" placeholder="Senha (opc)" class="form-control form-control-sm" style="width: 105px;">
+                      <button type="submit" class="btn btn-sm btn-success fw-semibold text-nowrap">
+                        <i class="bi bi-check-lg me-1"></i>Aprovar
+                      </button>
+                    <% end %>
+
+                    <%= button_to reject_access_request_path(req), method: :patch, class: "btn btn-xs btn-outline-danger" do %>
+                      <i class="bi bi-x-lg me-1"></i>Recusar Solicitação
+                    <% end %>
+                  </div>
+                <% else %>
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <% if req.provisioned_user.present? %>
+                      <%= link_to edit_user_path(req.provisioned_user), class: "btn btn-sm btn-light border", title: "Ver Usuário Criado" do %>
+                        <i class="bi bi-person-check text-primary me-1"></i>Ver Usuário
+                      <% end %>
+                    <% end %>
+                    <%= button_to access_request_path(req), method: :delete, class: "btn btn-sm btn-light border text-danger", title: "Excluir registro" do %>
+                      <i class="bi bi-trash"></i>
+                    <% end %>
+                  </div>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="6" class="text-center py-5 text-muted">
+              Nenhuma solicitação de acesso encontrada para este filtro.
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

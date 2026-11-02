@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <title><%= content_for(:title) || "Estudante • Sistema de Chamada e Gestão Escolar" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Estudante">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="<%= user_signed_in? && controller_name != 'landing' ? 'app-authenticated spatial-theme-active' : 'app-guest' %>">
+    <% if user_signed_in? && controller_name != 'landing' %>
+      <div class="app-shell">
+        <!-- Spatial Glass Sidebar Navigation -->
+        <aside class="app-sidebar">
+          <div class="sidebar-brand">
+            <div class="brand-logo">
+              <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <div>
+              <div class="brand-title">ESTUDANTE</div>
+              <div class="brand-subtitle">Gestão Escolar</div>
+            </div>
+          </div>
+
+          <div class="sidebar-role-card">
+            <div class="avatar-circle <%= current_user.role_badge_color %>">
+              <%= current_user.initials %>
+            </div>
+            <div class="overflow-hidden">
+              <div class="user-name text-truncate"><%= current_user.name %></div>
+              <span class="badge-role <%= current_user.role_badge_color %>">
+                <%= current_user.role_label %>
+              </span>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <div class="nav-section-label">Visão Geral</div>
+            <%= link_to dashboard_path, class: "sidebar-link #{request.path == dashboard_path ? 'active' : ''}" do %>
+              <i class="bi bi-grid-1x2-fill"></i>
+              <span>Painel Principal</span>
+            <% end %>
+
+            <%= link_to root_path, class: "sidebar-link" do %>
+              <i class="bi bi-layers-fill"></i>
+              <span>Vitrine 3D (Início)</span>
+            <% end %>
+
+            <%= link_to announcements_path, class: "sidebar-link #{nav_active_class('/announcements')}" do %>
+              <i class="bi bi-megaphone-fill"></i>
+              <span>Mural de Avisos</span>
+              <% urgent_count = Announcement.visible_for(current_user).urgent.count %>
+              <% if urgent_count.positive? %>
+                <span class="sidebar-counter bg-danger"><%= urgent_count %></span>
+              <% end %>
+            <% end %>
+
+            <% if current_user.director? || current_user.teacher? %>
+              <div class="nav-section-label mt-3">Diário do Professor</div>
+              <%= link_to attendance_registers_path, class: "sidebar-link #{nav_active_class('/attendance_registers')}" do %>
+                <i class="bi bi-calendar2-check-fill"></i>
+                <span>Diário de Chamada</span>
+              <% end %>
+
+              <%= link_to gradebooks_path, class: "sidebar-link #{nav_active_class('/gradebooks')}" do %>
+                <i class="bi bi-journal-bookmark-fill"></i>
+                <span>Notas & Médias</span>
+              <% end %>
+            <% end %>
+
+            <% if current_user.student? || current_user.director? || current_user.teacher? %>
+              <div class="nav-section-label mt-3">Portal do Aluno</div>
+              <%= link_to report_card_path, class: "sidebar-link #{nav_active_class('/boletim')}" do %>
+                <i class="bi bi-award-fill"></i>
+                <span>Boletim Escolar</span>
+              <% end %>
+
+              <%= link_to student_attendances_path, class: "sidebar-link #{nav_active_class('/frequencia')}" do %>
+                <i class="bi bi-clock-history"></i>
+                <span>Frequência & Faltas</span>
+              <% end %>
+            <% end %>
+
+            <% if current_user.director? %>
+              <div class="nav-section-label mt-3">Gestão Diretoria</div>
+              <%= link_to access_requests_path, class: "sidebar-link #{nav_active_class('/access_requests')}" do %>
+                <i class="bi bi-shield-check"></i>
+                <span>Solicitações de Acesso</span>
+                <% pending_reqs = AccessRequest.pending.count %>
+                <% if pending_reqs.positive? %>
+                  <span class="sidebar-counter bg-warning text-dark"><%= pending_reqs %></span>
+                <% end %>
+              <% end %>
+
+              <%= link_to users_path, class: "sidebar-link #{nav_active_class('/users')}" do %>
+                <i class="bi bi-people-fill"></i>
+                <span>Usuários & Equipe</span>
+              <% end %>
+
+              <%= link_to classrooms_path, class: "sidebar-link #{nav_active_class('/classrooms')}" do %>
+                <i class="bi bi-door-open-fill"></i>
+                <span>Turmas & Matrículas</span>
+              <% end %>
+
+              <%= link_to subjects_path, class: "sidebar-link #{nav_active_class('/subjects')}" do %>
+                <i class="bi bi-book-half"></i>
+                <span>Disciplinas</span>
+              <% end %>
+            <% end %>
+          </nav>
+
+          <div class="sidebar-footer">
+            <%= button_to destroy_user_session_path, method: :delete, class: "btn btn-logout w-100" do %>
+              <i class="bi bi-box-arrow-right me-2"></i>Encerrar Sessão
+            <% end %>
+          </div>
+        </aside>
+
+        <!-- Main Content Area with Spatial Glass Omnibar -->
+        <div class="app-main">
+          <div class="px-3 px-md-4 pt-3 no-print">
+            <header class="spatial-omnibar mx-auto" style="max-width: 100%;">
+              <div class="d-flex align-items-center gap-2">
+                <%= link_to dashboard_path, class: "omnibar-btn #{request.path == dashboard_path ? 'active-omnibar-btn' : ''}", title: "Painel Principal" do %>
+                  <i class="bi bi-grid-1x2-fill"></i>
+                <% end %>
+                <button type="button" class="omnibar-btn" onclick="window.history.back()" title="Voltar">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <button type="button" class="omnibar-btn" onclick="window.history.forward()" title="Avançar">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+
+              <div class="omnibar-address">
+                <span class="small fw-semibold text-white-50 d-none d-md-inline">AA</span>
+                <div class="d-flex align-items-center gap-2 mx-auto">
+                  <i class="bi bi-lock-fill text-warning small"></i>
+                  <span class="fw-semibold text-truncate"><%= content_for(:page_title) || "Painel Acadêmico" %></span>
+                  <span class="text-white-50 small d-none d-lg-inline">• <%= current_user.role_label %> (<%= current_user.registration_number %>)</span>
+                </div>
+                <span class="small text-white-50 d-none d-md-inline"><%= format_br_date(Date.current) %></span>
+              </div>
+
+              <div class="d-flex align-items-center gap-2">
+                <%= link_to announcements_path, class: "omnibar-btn", title: "Mural de Avisos" do %>
+                  <i class="bi bi-megaphone-fill"></i>
+                <% end %>
+                <%= link_to root_path, class: "omnibar-btn d-none d-sm-inline-flex", title: "Ver Vitrine 3D" do %>
+                  <i class="bi bi-layers-fill"></i>
+                <% end %>
+              </div>
+            </header>
+          </div>
+
+          <main class="app-content">
+            <!-- Page Header Banner inside Spatial Stage -->
+            <div class="spatial-page-header mb-4 no-print">
+              <div>
+                <span class="spatial-badge mb-2">
+                  <i class="bi bi-stars"></i> Estudante • Gestão Escolar (<%= current_user.role_label %>)
+                </span>
+                <h1 class="topbar-title mb-1"><%= content_for(:page_title) || "Painel Acadêmico" %></h1>
+                <div class="topbar-subtitle"><%= content_for(:page_subtitle) || "Ano Letivo 2026 • Controle de Chamada, Notas e Desempenho" %></div>
+              </div>
+
+              <div class="d-flex align-items-center gap-2">
+                <div class="topbar-pill">
+                  <i class="bi bi-person-badge text-warning me-2"></i>
+                  <span><%= current_user.name %> • <strong><%= current_user.registration_number %></strong></span>
+                </div>
+              </div>
+            </div>
+
+            <% if notice.present? %>
+              <div class="alert alert-custom-success alert-dismissible fade show mb-4" role="alert">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-check-circle-fill fs-5"></i>
+                  <div><%= notice %></div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <% end %>
+
+            <% if alert.present? %>
+              <div class="alert alert-custom-danger alert-dismissible fade show mb-4" role="alert">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                  <div><%= alert %></div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <% end %>
+
+            <%= yield %>
+          </main>
+        </div>
+      </div>
+    <% else %>
+      <%= yield %>
+    <% end %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

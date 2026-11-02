@@ -1,0 +1,89 @@
+<% content_for :page_title, "Grade Curricular e Disciplinas" %>
+<% content_for :page_subtitle, "Disciplinas vinculadas às turmas e aos professores responsáveis." %>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="glass-card overflow-hidden">
+      <div class="table-responsive">
+        <table class="table table-premium">
+          <thead>
+            <tr>
+              <th>Disciplina / Código</th>
+              <th>Turma</th>
+              <th>Professor(a) Responsável</th>
+              <th class="text-center">Carga Horária</th>
+              <th class="text-end">Atalhos</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @subjects.each do |sub| %>
+              <tr>
+                <td>
+                  <div class="fw-bold"><%= sub.name %></div>
+                  <span class="badge bg-light text-secondary border"><%= sub.code %></span>
+                </td>
+                <td>
+                  <div class="fw-semibold"><%= sub.classroom.name %></div>
+                  <div class="text-muted small"><%= sub.classroom.shift %></div>
+                </td>
+                <td>
+                  <div class="fw-semibold"><%= sub.teacher.name %></div>
+                  <div class="text-muted small"><%= sub.teacher.email %></div>
+                </td>
+                <td class="text-center"><span class="badge bg-light text-dark border"><%= sub.workload_hours %>h</span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex gap-1">
+                    <%= link_to attendance_registers_path(subject_id: sub.id), class: "btn btn-sm btn-light border", title: "Chamada" do %>
+                      <i class="bi bi-calendar2-check text-primary"></i>
+                    <% end %>
+                    <%= link_to gradebooks_path(subject_id: sub.id), class: "btn btn-sm btn-light border", title: "Diário de Notas" do %>
+                      <i class="bi bi-journal-bookmark text-success"></i>
+                    <% end %>
+                    <% if current_user.director? %>
+                      <%= button_to subject_path(sub), method: :delete, class: "btn btn-sm btn-light border text-danger", title: "Remover" do %>
+                        <i class="bi bi-trash"></i>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <% if current_user.director? %>
+    <div class="col-lg-4">
+      <div class="glass-card p-3">
+        <h5 class="fw-bold mb-3"><i class="bi bi-journal-plus text-primary me-2"></i>Nova Disciplina</h5>
+        <%= form_with model: @new_subject, local: true do |f| %>
+          <div class="mb-3">
+            <%= f.label :name, "Nome da Disciplina", class: "form-label small fw-bold" %>
+            <%= f.text_field :name, required: true, class: "form-control", placeholder: "Ex.: Física Quântica / Biologia" %>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <%= f.label :code, "Código Único", class: "form-label small fw-bold" %>
+              <%= f.text_field :code, required: true, class: "form-control", placeholder: "FIS-3A" %>
+            </div>
+            <div class="col-6">
+              <%= f.label :workload_hours, "Carga Horária", class: "form-label small fw-bold" %>
+              <%= f.number_field :workload_hours, required: true, class: "form-control" %>
+            </div>
+          </div>
+          <div class="mb-3">
+            <%= f.label :classroom_id, "Turma", class: "form-label small fw-bold" %>
+            <%= f.collection_select :classroom_id, @classrooms, :id, :full_title, {}, class: "form-select" %>
+          </div>
+          <div class="mb-3">
+            <%= f.label :teacher_id, "Professor(a) Responsável", class: "form-label small fw-bold" %>
+            <%= f.collection_select :teacher_id, @teachers, :id, :name, {}, class: "form-select" %>
+          </div>
+          <%= f.submit "Cadastrar Disciplina", class: "btn btn-indigo w-100" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

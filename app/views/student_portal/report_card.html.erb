@@ -1,0 +1,180 @@
+<% content_for :page_title, "Boletim Escolar Digital" %>
+<% content_for :page_subtitle, "Desempenho detalhado por bimestre, soma de pontos, médias bimestrais e média geral anual." %>
+
+<!-- Student Selector for Director/Teacher + Print Action -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 no-print">
+  <% if current_user.director? || current_user.teacher? %>
+    <%= form_with url: report_card_path, method: :get, local: true, class: "d-flex align-items-center gap-2" do %>
+      <label class="small fw-bold text-secondary text-nowrap">Visualizar Aluno:</label>
+      <select name="student_id" class="form-select form-select-sm" style="min-width: 280px;" onchange="this.form.submit()">
+        <% User.student.ordered.each do |st| %>
+          <option value="<%= st.id %>" <%= "selected" if @student.id == st.id %>>
+            <%= st.name %> (<%= st.registration_number %>)
+          </option>
+        <% end %>
+      </select>
+    <% end %>
+  <% else %>
+    <div></div>
+  <% end %>
+
+  <div class="d-flex gap-2">
+    <%= link_to student_attendances_path(student_id: @student.id), class: "btn btn-sm btn-outline-primary rounded-3 fw-semibold" do %>
+      <i class="bi bi-calendar2-check me-1"></i>Extrato de Presença e Faltas
+    <% end %>
+    <button type="button" onclick="window.print()" class="btn btn-sm btn-indigo rounded-3">
+      <i class="bi bi-printer-fill me-1"></i>Imprimir Boletim Oficial
+    </button>
+  </div>
+</div>
+
+<!-- Official Header Card -->
+<div class="glass-card p-4 mb-4">
+  <div class="row align-items-center g-3">
+    <div class="col-md-6 d-flex align-items-center gap-3">
+      <div class="avatar-circle badge-student" style="width: 58px; height: 58px; font-size: 1.35rem; border-radius: 16px;">
+        <%= @student.initials %>
+      </div>
+      <div>
+        <span class="badge bg-success-subtle text-success border border-success-subtle mb-1">Matrícula Ativa • Ano Letivo 2026</span>
+        <h4 class="fw-bold mb-0"><%= @student.name %></h4>
+        <div class="text-muted small">
+          Matrícula: <strong><%= @student.registration_number %></strong> • Turma: <strong><%= @classroom&.full_title || "Não enturmado" %></strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="row g-2 text-center">
+        <div class="col-4">
+          <div class="p-2 rounded-3 bg-light border">
+            <div class="text-muted" style="font-size: 0.72rem;">Média Geral Anual</div>
+            <div class="fw-bold fs-5 text-primary"><%= format_grade(@overall_annual_average) %></div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="p-2 rounded-3 bg-light border">
+            <div class="text-muted" style="font-size: 0.72rem;">Frequência Global</div>
+            <div class="fw-bold fs-5 text-success"><%= @overall_attendance_rate %>%</div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="p-2 rounded-3 bg-light border">
+            <div class="text-muted" style="font-size: 0.72rem;">Total de Faltas</div>
+            <div class="fw-bold fs-5 text-danger"><%= @total_absences %></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Report Card Table -->
+<div class="glass-card overflow-hidden mb-4">
+  <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
+    <div>
+      <h5 class="fw-bold mb-0"><i class="bi bi-table text-primary me-2"></i>Quadro Consolidado de Médias Bimestrais e Anual</h5>
+      <div class="text-muted small">Média Bimestral = Soma dos pontos ÷ Nº de avaliações | Média Anual = (1ºB + 2ºB + 3ºB + 4ºB) ÷ 4</div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-premium">
+      <thead>
+        <tr>
+          <th>Disciplina / Professor</th>
+          <th class="text-center">1º Bimestre<br><span class="fw-normal text-muted" style="font-size: 0.65rem;">Soma | Média</span></th>
+          <th class="text-center">2º Bimestre<br><span class="fw-normal text-muted" style="font-size: 0.65rem;">Soma | Média</span></th>
+          <th class="text-center">3º Bimestre<br><span class="fw-normal text-muted" style="font-size: 0.65rem;">Soma | Média</span></th>
+          <th class="text-center">4º Bimestre<br><span class="fw-normal text-muted" style="font-size: 0.65rem;">Soma | Média</span></th>
+          <th class="text-center">Média Anual</th>
+          <th class="text-center">Faltas / Presença</th>
+          <th class="text-center">Situação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @reports.each do |rep| %>
+          <% sub = rep[:subject] %>
+          <tr>
+            <td>
+              <div class="fw-bold"><%= sub.name %></div>
+              <div class="text-muted small"><%= sub.teacher.name %> • <%= sub.workload_hours %>h</div>
+            </td>
+            <% [1, 2, 3, 4].each do |bim| %>
+              <% b_data = rep[:bimesters][bim] %>
+              <td class="text-center">
+                <div class="d-flex flex-column align-items-center">
+                  <span class="grade-pill <%= grade_color_class(b_data[:average]) %>">
+                    <%= format_grade(b_data[:average]) %>
+                  </span>
+                  <span class="text-muted mt-1" style="font-size: 0.7rem;">
+                    Soma: <%= format_grade(b_data[:sum]) %> (<%= b_data[:count] %> aval.)
+                  </span>
+                </div>
+              </td>
+            <% end %>
+            <td class="text-center">
+              <span class="grade-pill <%= grade_color_class(rep[:annual_average]) %> fs-6 border">
+                <%= format_grade(rep[:annual_average]) %>
+              </span>
+            </td>
+            <td class="text-center">
+              <div class="fw-semibold"><%= rep[:absences_count] %> falta(s)</div>
+              <div class="text-muted small"><%= rep[:attendance_rate] %>% presença</div>
+            </td>
+            <td class="text-center">
+              <span class="status-badge <%= rep[:status][:badge] %>"><%= rep[:status][:label] %></span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Detailed Breakdown of Assessments per Subject -->
+<h5 class="fw-bold mb-3"><i class="bi bi-list-check text-primary me-2"></i>Detalhamento de Avaliações e Pontos por Disciplina</h5>
+<div class="row g-3">
+  <% @reports.each do |rep| %>
+    <% sub = rep[:subject] %>
+    <div class="col-md-6">
+      <div class="glass-card p-3 h-100">
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+          <div>
+            <div class="fw-bold"><%= sub.name %></div>
+            <div class="text-muted small">Média Anual: <strong><%= format_grade(rep[:annual_average]) %></strong></div>
+          </div>
+          <span class="status-badge <%= rep[:status][:badge] %>"><%= rep[:status][:label] %></span>
+        </div>
+
+        <div class="row g-2">
+          <% [1, 2, 3, 4].each do |bim| %>
+            <% b_data = rep[:bimesters][bim] %>
+            <div class="col-6">
+              <div class="p-2 rounded-3 bg-light border h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="fw-bold small text-secondary"><%= bim %>º Bimestre</span>
+                  <span class="badge bg-white text-dark border">Média: <%= format_grade(b_data[:average]) %></span>
+                </div>
+                <% if b_data[:assessments].any? %>
+                  <% b_data[:assessments].each do |a| %>
+                    <div class="d-flex justify-content-between small text-muted">
+                      <span>• <%= a.title %></span>
+                      <strong class="text-dark"><%= format_grade(a.score) %></strong>
+                    </div>
+                  <% end %>
+                  <div class="border-top mt-1 pt-1 d-flex justify-content-between" style="font-size: 0.72rem;">
+                    <span class="text-muted">Soma de pontos:</span>
+                    <strong><%= format_grade(b_data[:sum]) %> pts</strong>
+                  </div>
+                <% else %>
+                  <div class="text-muted small fst-italic">Sem avaliações</div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

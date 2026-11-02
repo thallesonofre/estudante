@@ -1,0 +1,102 @@
+<% content_for :page_title, "Consulta de Frequência e Faltas" %>
+<% content_for :page_subtitle, "Acompanhamento de presenças, faltas, atrasos e percentual de frequência por disciplina." %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <%= form_with url: student_attendances_path, method: :get, local: true, class: "d-flex flex-wrap align-items-center gap-2" do %>
+    <% if current_user.director? || current_user.teacher? %>
+      <select name="student_id" class="form-select form-select-sm" style="width: 240px;" onchange="this.form.submit()">
+        <% User.student.ordered.each do |st| %>
+          <option value="<%= st.id %>" <%= "selected" if @student.id == st.id %>><%= st.name %></option>
+        <% end %>
+      </select>
+    <% end %>
+
+    <select name="subject_id" class="form-select form-select-sm" style="width: 240px;" onchange="this.form.submit()">
+      <option value="">Todas as Disciplinas</option>
+      <% @subjects.each do |sub| %>
+        <option value="<%= sub.id %>" <%= "selected" if @selected_subject_id.to_s == sub.id.to_s %>><%= sub.name %></option>
+      <% end %>
+    </select>
+  <% end %>
+
+  <%= link_to report_card_path(student_id: @student.id), class: "btn btn-sm btn-indigo rounded-3" do %>
+    <i class="bi bi-award-fill me-1"></i>Voltar ao Boletim de Notas
+  <% end %>
+</div>
+
+<!-- Subject Attendance Summary Cards -->
+<div class="row g-3 mb-4">
+  <% @subject_attendance_summaries.each do |summary| %>
+    <% sub = summary[:subject] %>
+    <div class="col-md-4 col-sm-6">
+      <div class="glass-card p-3 h-100">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <div class="fw-bold"><%= sub.name %></div>
+            <div class="text-muted small"><%= sub.teacher.name %></div>
+          </div>
+          <span class="status-badge <%= summary[:attendance_rate] >= 75 ? 'status-success' : 'status-danger' %>">
+            <%= summary[:attendance_rate] %>% Presença
+          </span>
+        </div>
+
+        <div class="progress mb-2" style="height: 8px;">
+          <div class="progress-bar <%= summary[:attendance_rate] >= 75 ? 'bg-success' : 'bg-danger' %>"
+               role="progressbar"
+               style="width: <%= summary[:attendance_rate] %>%;"></div>
+        </div>
+
+        <div class="d-flex justify-content-between small text-muted">
+          <span>Aulas dadas: <strong><%= summary[:total_classes] %></strong></span>
+          <span>Faltas: <strong class="text-danger"><%= summary[:absences_count] %></strong></span>
+          <span>Justificadas: <strong><%= summary[:justified_count] %></strong></span>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- Chronological Attendance History -->
+<div class="glass-card overflow-hidden">
+  <div class="p-3 border-bottom bg-light">
+    <h5 class="fw-bold mb-0"><i class="bi bi-calendar-week text-primary me-2"></i>Histórico Detalhado de Chamadas — <%= @student.name %></h5>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-premium">
+      <thead>
+        <tr>
+          <th>Data da Aula</th>
+          <th>Bimestre</th>
+          <th>Disciplina</th>
+          <th>Conteúdo / Tópico da Aula</th>
+          <th class="text-center">Registro</th>
+          <th>Observação / Justificativa</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @attendances.any? %>
+          <% @attendances.each do |att| %>
+            <tr>
+              <td class="fw-semibold"><%= format_br_date(att.attended_on) %></td>
+              <td><span class="badge bg-light text-dark border"><%= att.bimester %>º Bimestre</span></td>
+              <td>
+                <div class="fw-bold"><%= att.subject.name %></div>
+                <div class="text-muted small"><%= att.subject.teacher.name %></div>
+              </td>
+              <td><%= att.lesson_topic.presence || "Aula Regular" %></td>
+              <td class="text-center">
+                <span class="status-badge <%= att.status_badge_class %>"><%= att.status_label %></span>
+              </td>
+              <td class="text-muted small"><%= att.justification.presence || "—" %></td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="6" class="text-center py-4 text-muted">Nenhum registro de chamada encontrado para o filtro selecionado.</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

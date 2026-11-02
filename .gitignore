@@ -1,0 +1,48 @@
+# See https://help.github.com/articles/ignoring-files for more about ignoring files.
+#
+# Temporary files, logs, and PIDs
+/log/*
+!/log/.keep
+/tmp/*
+!/tmp/.keep
+!/tmp/pids
+/tmp/pids/*
+!/tmp/pids/.keep
+/tmp/storage/*
+!/tmp/storage/.keep
+
+# Uploaded files in development and test
+/storage/*
+!/storage/.keep
+
+# Bundler config and local gems
+/.bundle
+/vendor/bundle
+
+# Ignore master key and environment secrets for decrypting credentials and more
+/config/master.key
+/config/credentials/*.key
+.env
+.env.*
+!.env.example
+/.kamal/secrets*
+
+# Node / JS build artifacts (if added later)
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
+
+# Compiled assets & coverage
+/public/assets
+/coverage
+
+# OS & Editor temporary files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+.byebug_history
+.rspec_status

@@ -1,0 +1,643 @@
+<%
+  slides = [
+    {
+      title: "Sistema Estudante",
+      subtitle: "Gestão Escolar & Chamada Digital",
+      badge: "Plataforma Principal",
+      description: "Ecossistema acadêmico desenvolvido em Ruby on Rails e PostgreSQL para controle diário de frequência, lançamento de notas por bimestre, cálculo automático de médias e governança escolar.",
+      location: "Portal Acadêmico Integrado • Direção, Professores e Alunos",
+      coords: "Ruby 3.4 • Rails 8.1 • PostgreSQL • RBAC Security",
+      image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=85",
+      details: "Centraliza em uma única plataforma segura todas as rotinas pedagógicas da instituição: chamada inteligente, diário de notas bimestral, boletim estudantil e mural de avisos oficial."
+    },
+    {
+      title: "Diário de Chamada",
+      subtitle: "Controle de Presença & Faltas",
+      badge: "Módulo do Professor",
+      description: "Realize a chamada diária da turma em segundos com marcação rápida de presença, falta, atraso ou falta justificada, registrando o conteúdo programático ministrado em cada aula.",
+      location: "Controle de Assiduidade • Alerta Automático (< 75%)",
+      coords: "Histórico por Disciplina • 1º ao 4º Bimestre",
+      image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=85",
+      details: "Calcula automaticamente o percentual de presença de cada estudante e sinaliza no Radar Pedagógico quando o aluno se aproxima do limite legal de 25% de faltas."
+    },
+    {
+      title: "Notas & Médias",
+      subtitle: "Cálculo Bimestral & Anual",
+      badge: "Motor Matemático",
+      description: "Lance avaliações individuais ou em lote para toda a turma. O sistema calcula automaticamente a soma de pontos por bimestre, a média bimestral e a média geral anual dos 4 bimestres.",
+      location: "Média Bimestral = Soma ÷ Avaliações • Média Anual = (1ºB+2ºB+3ºB+4ºB) ÷ 4",
+      coords: "Zero Planilhas • Recálculo Instantâneo em Tempo Real",
+      image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=85",
+      details: "Transparência total nas regras de cálculo: cada prova, simulado ou trabalho lançado atualiza na hora a situação do aluno (Aprovado, Em Curso, Recuperação ou Atenção Pedagógica)."
+    },
+    {
+      title: "Portal do Aluno",
+      subtitle: "Boletim Digital & Frequência",
+      badge: "Experiência do Estudante",
+      description: "Interface dedicada para o estudante consultar suas faltas, acompanhar cada nota lançada por bimestre, visualizar suas médias bimestrais e anual e imprimir o Boletim Escolar Oficial.",
+      location: "Acesso Individual Seguro • Consulta de Desempenho 24/7",
+      coords: "Extrato de Aulas • Quadro Consolidado dos 4 Bimestres",
+      image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=85",
+      details: "O aluno visualiza apenas seus próprios dados acadêmicos, com barras de progresso de presença por disciplina e detalhamento de todas as notas que compõem sua média."
+    },
+    {
+      title: "Direção & Radar",
+      subtitle: "Governança & Mural Escolar",
+      badge: "Painel Executivo",
+      description: "Acesso total ao sistema: gerencie professores, alunos, funcionários, turmas e permissões, publique no mural de avisos da escola e aprove solicitações de acesso de novos usuários.",
+      location: "Controle Gerencial Completo • Auditoria de Turmas",
+      coords: "Gestão de Usuários • Mural Institucional • Liberação de Acessos",
+      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=85",
+      details: "Inclui o Radar Pedagógico que destaca automaticamente alunos com média abaixo de 6,0 ou baixa frequência, permitindo ação preventiva da direção e coordenação."
+    },
+    {
+      title: "Colégios & Redes",
+      subtitle: "Ensino Básico, Médio & Público",
+      badge: "Possíveis Clientes",
+      description: "Projetado para colégios privados de Ensino Fundamental e Médio e redes municipais que buscam modernizar o diário de classe, padronizar os 4 bimestres e reduzir a evasão escolar.",
+      location: "Ideal para Escolas Regulares, Cívico-Militares e Redes de Ensino",
+      coords: "Multiturmas • Turnos Matutino, Vespertino, Integral e Noturno",
+      image: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=85",
+      details: "Substitui diários de papel e planilhas desconectadas por uma central única em nuvem com controle rigoroso de acesso por perfil (Diretor, Professor, Aluno e Funcionário)."
+    },
+    {
+      title: "Cursos & Institutos",
+      subtitle: "Técnicos, Pré-Vestibular & Idiomas",
+      badge: "Possíveis Clientes",
+      description: "Atende escolas técnicas, cursinhos preparatórios, escolas de idiomas e fundações educacionais que aplicam simulados periódicos e exigem relatórios claros de frequência e notas.",
+      location: "Escolas Técnicas • Cursinhos ENEM • Centros de Idiomas • ONGs",
+      coords: "Lançamento de Simulados em Lote • Carga Horária Flexível",
+      image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=85",
+      details: "Qualquer instituição interessada pode solicitar acesso de avaliação pela página inicial e, após aprovação do Administrador, testar todos os recursos na prática."
+    }
+  ]
+%>
+
+<div class="spatial-landing">
+  <!-- Left Floating Vertical Glass Dock (exactly like reference image) -->
+  <aside class="spatial-left-dock">
+    <a href="#apresentacao" class="omnibar-btn" title="Banner Rotativo 3D">
+      <i class="bi bi-layers-fill"></i>
+    </a>
+    <a href="#clientes" class="omnibar-btn" title="Possíveis Clientes">
+      <i class="bi bi-buildings"></i>
+    </a>
+    <a href="#solicitar" class="omnibar-btn" title="Solicitar Acesso para Teste">
+      <i class="bi bi-key"></i>
+    </a>
+    <%= link_to new_user_session_path, class: "omnibar-btn", title: "Fazer Login no Sistema" do %>
+      <i class="bi bi-person"></i>
+    <% end %>
+  </aside>
+
+  <!-- Main Spatial Hero Stage with 3D Coverflow Rotating Banner -->
+  <section class="spatial-stage" id="apresentacao">
+    <!-- Top Floating Glass Omnibar (Rome Explorer style) -->
+    <header class="spatial-omnibar">
+      <div class="d-flex align-items-center gap-2">
+        <a href="#clientes" class="omnibar-btn" title="Ver Segmentos e Clientes">
+          <i class="bi bi-grid-3x3-gap-fill"></i>
+        </a>
+        <button type="button" class="omnibar-btn" id="omnibarPrev" title="Card Anterior">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <button type="button" class="omnibar-btn" id="omnibarNext" title="Próximo Card">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+
+      <div class="omnibar-address">
+        <span class="small fw-semibold text-white-50 d-none d-md-inline">AA</span>
+        <div class="d-flex align-items-center gap-2 mx-auto">
+          <i class="bi bi-lock-fill text-warning small"></i>
+          <span class="fw-semibold" id="omnibarTitle">Estudante • Gestão Escolar</span>
+        </div>
+        <i class="bi bi-mortarboard-fill text-white-50 d-none d-md-inline"></i>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="omnibar-btn" id="toggleAutoplayBtn" title="Pausar / Iniciar Rotação Automática">
+          <i class="bi bi-pause-fill" id="autoplayIcon"></i>
+        </button>
+        <a href="#solicitar" class="omnibar-btn d-none d-sm-inline-flex" title="Solicitar Acesso de Teste">
+          <i class="bi bi-plus-lg"></i>
+        </a>
+        <% if user_signed_in? %>
+          <%= link_to dashboard_path, class: "omnibar-pill-cta" do %>
+            <i class="bi bi-grid-1x2-fill me-1"></i>Painel
+          <% end %>
+        <% else %>
+          <%= link_to new_user_session_path, class: "omnibar-pill-cta" do %>
+            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+          <% end %>
+        <% end %>
+      </div>
+    </header>
+
+    <% if notice.present? %>
+      <div class="alert alert-custom-success mt-3 mb-0 py-2 px-4 shadow-lg" style="max-width: 780px; z-index: 30;">
+        <i class="bi bi-check-circle-fill me-2"></i><%= notice %>
+      </div>
+    <% end %>
+    <% if alert.present? %>
+      <div class="alert alert-custom-danger mt-3 mb-0 py-2 px-4 shadow-lg" style="max-width: 780px; z-index: 30;">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><%= alert %>
+      </div>
+    <% end %>
+
+    <!-- 3D Rotating Coverflow Banner -->
+    <div class="coverflow-viewport" id="coverflowViewport">
+      <div class="coverflow-track" id="coverflowTrack">
+        <% slides.each_with_index do |slide, idx| %>
+          <article class="coverflow-card"
+                   data-index="<%= idx %>"
+                   data-title="<%= slide[:title] %>"
+                   data-subtitle="<%= slide[:subtitle] %>"
+                   data-badge="<%= slide[:badge] %>"
+                   data-description="<%= slide[:description] %>"
+                   data-details="<%= slide[:details] %>"
+                   data-location="<%= slide[:location] %>"
+                   data-image="<%= slide[:image] %>">
+            <div class="coverflow-card-bg" style="background-image: url('<%= slide[:image] %>');"></div>
+            <div class="coverflow-card-overlay"></div>
+
+            <!-- Top Controls inside Center Card -->
+            <div class="coverflow-card-topbar">
+              <div style="width: 34px;"></div>
+              <button type="button" class="btn-glass-expand" data-action="expand-slide">
+                <i class="bi bi-arrows-angle-expand"></i> Expandir
+              </button>
+              <a href="#solicitar" class="btn-glass-more" title="Solicitar Acesso ou Testar">
+                <i class="bi bi-three-dots"></i>
+              </a>
+            </div>
+
+            <!-- Bottom Content inside Card -->
+            <div class="coverflow-card-body">
+              <div class="d-flex align-items-baseline justify-content-between mb-1">
+                <h2 class="coverflow-card-title mb-0"><%= slide[:title] %></h2>
+                <span class="coverflow-card-counter"><%= idx + 1 %> / <%= slides.size %></span>
+              </div>
+
+              <div class="text-white-50 small fw-medium mb-2"><%= slide[:subtitle] %></div>
+
+              <p class="coverflow-card-desc"><%= slide[:description] %></p>
+
+              <div class="coverflow-card-meta">
+                <div><i class="bi bi-geo-alt-fill text-warning me-1"></i><%= slide[:location] %></div>
+                <div class="coverflow-card-coords"><%= slide[:coords] %></div>
+              </div>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Bottom Floating Glass Controller Pill + Indicator Dots (Rome Eternal City bar replica) -->
+    <div class="spatial-bottom-dock">
+      <div class="spatial-controller-pill">
+        <button type="button" class="omnibar-btn" id="pillPrevBtn" title="Slide Anterior">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <div class="d-flex align-items-center gap-3 flex-grow-1">
+          <div class="controller-thumb" id="pillThumb" style="background-image: url('<%= slides.first[:image] %>');"></div>
+          <div class="overflow-hidden">
+            <div class="fw-bold text-white text-truncate" id="pillTitle"><%= slides.first[:title] %></div>
+            <div class="text-white-50 small text-truncate" id="pillSubtitle" style="font-size: 0.76rem;"><%= slides.first[:subtitle] %></div>
+            <div class="text-warning" id="pillBadge" style="font-size: 0.7rem; font-weight: 600;"><%= slides.first[:badge] %></div>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <a href="#solicitar" class="omnibar-btn" title="Solicitar Acesso para Testar">
+            <i class="bi bi-key-fill text-warning"></i>
+          </a>
+          <button type="button" class="omnibar-btn" id="pillNextBtn" title="Próximo Slide">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pagination Dots + Quick Action Links -->
+      <div class="controller-dots" id="controllerDots">
+        <% slides.each_with_index do |_, idx| %>
+          <button type="button" class="controller-dot <%= 'active' if idx.zero? %>" data-goto="<%= idx %>" aria-label="Slide <%= idx + 1 %>"></button>
+        <% end %>
+      </div>
+
+      <div class="d-flex flex-wrap justify-content-center gap-3 mt-1 small">
+        <a href="#solicitar" class="text-warning text-decoration-none fw-semibold">
+          <i class="bi bi-shield-lock-fill me-1"></i>Teste o Nosso Sistema (Solicite Acesso)
+        </a>
+        <span class="text-white-50">•</span>
+        <a href="#clientes" class="text-white-50 text-decoration-none">
+          <i class="bi bi-buildings me-1"></i>Possíveis Clientes
+        </a>
+        <span class="text-white-50">•</span>
+        <%= link_to new_user_session_path, class: "text-info text-decoration-none fw-semibold" do %>
+          <i class="bi bi-box-arrow-in-right me-1"></i>Fazer Login
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Potential Clients & Segments Section (Dark Glass Aesthetic) -->
+  <section class="spatial-section" id="clientes">
+    <div class="container">
+      <div class="text-center mx-auto mb-5" style="max-width: 740px;">
+        <span class="spatial-badge mb-3">
+          <i class="bi bi-buildings-fill"></i> Possíveis Clientes & Segmentos
+        </span>
+        <h2 class="display-6 fw-bold text-white mb-3">Quem transforma a gestão com o Sistema Estudante?</h2>
+        <p class="text-white-50">
+          De colégios tradicionais a instituições de ensino técnico e preparatório: nossa arquitetura em Ruby on Rails e PostgreSQL adapta-se a qualquer operação acadêmica.
+        </p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="spatial-glass-panel h-100 d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="spatial-badge">Ensino Regular</span>
+                <i class="bi bi-building-check fs-3 text-warning"></i>
+              </div>
+              <h4 class="fw-bold mb-2">Colégios Privados (Fundamental e Médio)</h4>
+              <p class="text-white-50 small mb-3">
+                Boletim digital com cálculo automático dos 4 bimestres, controle rigoroso de frequência mínima (75%) e comunicação direta da Direção no mural escolar.
+              </p>
+            </div>
+            <a href="#solicitar" class="text-warning small fw-semibold text-decoration-none">
+              Solicitar demonstração para Colégio <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="spatial-glass-panel h-100 d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="spatial-badge">Setor Público</span>
+                <i class="bi bi-bank2 fs-3 text-info"></i>
+              </div>
+              <h4 class="fw-bold mb-2">Redes Municipais e Escolas Públicas</h4>
+              <p class="text-white-50 small mb-3">
+                Padronização do lançamento de notas bimestrais, auditoria de dezenas de turmas em tempo real e Radar Pedagógico para combate ativo à evasão escolar.
+              </p>
+            </div>
+            <a href="#solicitar" class="text-warning small fw-semibold text-decoration-none">
+              Solicitar demonstração para Rede Pública <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="spatial-glass-panel h-100 d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="spatial-badge">Ensino Técnico</span>
+                <i class="bi bi-cpu-fill fs-3 text-emerald"></i>
+              </div>
+              <h4 class="fw-bold mb-2">Escolas Técnicas e Profissionalizantes</h4>
+              <p class="text-white-50 small mb-3">
+                Controle de disciplinas teóricas e laboratoriais, lançamento de notas em lote para turmas inteiras e acompanhamento detalhado de carga horária.
+              </p>
+            </div>
+            <a href="#solicitar" class="text-warning small fw-semibold text-decoration-none">
+              Solicitar demonstração para Instituto <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="spatial-glass-panel h-100 d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="spatial-badge">Alta Performance</span>
+                <i class="bi bi-journal-richtext fs-3 text-danger"></i>
+              </div>
+              <h4 class="fw-bold mb-2">Cursinhos Pré-Vestibular e ENEM</h4>
+              <p class="text-white-50 small mb-3">
+                Registro ágil de simulados periódicos, acompanhamento da evolução de pontos por estudante e avisos urgentes fixados no topo do mural.
+              </p>
+            </div>
+            <a href="#solicitar" class="text-warning small fw-semibold text-decoration-none">
+              Solicitar demonstração para Cursinho <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="spatial-glass-panel h-100 d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="spatial-badge">Cursos Livres</span>
+                <i class="bi bi-translate fs-3 text-primary"></i>
+              </div>
+              <h4 class="fw-bold mb-2">Escolas de Idiomas e Centros Culturais</h4>
+              <p class="text-white-50 small mb-3">
+                Diário de chamada em 1 clique, registro do tópico ministrado em cada aula e portal intuitivo para os estudantes acompanharem sua evolução.
+              </p>
+            </div>
+            <a href="#solicitar" class="text-warning small fw-semibold text-decoration-none">
+              Solicitar demonstração para Escola de Idiomas <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="spatial-glass-panel h-100 d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="spatial-badge">Terceiro Setor</span>
+                <i class="bi bi-heart-pulse-fill fs-3 text-warning"></i>
+              </div>
+              <h4 class="fw-bold mb-2">Fundações, ONGs e Projetos Sociais</h4>
+              <p class="text-white-50 small mb-3">
+                Comprovação transparente de assiduidade, justificativa de faltas documentada e emissão de boletins oficiais prontos para impressão.
+              </p>
+            </div>
+            <a href="#solicitar" class="text-warning small fw-semibold text-decoration-none">
+              Solicitar demonstração para Fundação <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Request Access (Admin-Gated) + Login Section -->
+  <section class="spatial-section" id="solicitar">
+    <div class="container">
+      <div class="row g-4 align-items-stretch">
+        <div class="col-lg-7">
+          <div class="spatial-glass-panel h-100">
+            <span class="spatial-badge mb-3">
+              <i class="bi bi-shield-lock-fill"></i> Acesso Restrito Mediante Aprovação do Admin
+            </span>
+            <h3 class="fw-bold text-white mb-2">Teste o Nosso Sistema — Solicite seu Acesso</h3>
+            <p class="text-white-50 small mb-4">
+              Para proteger o ambiente acadêmico, qualquer teste requer autorização. Preencha os dados abaixo para que o Administrador do sistema aprove seu pedido e libere seu login.
+            </p>
+
+            <%= form_with url: request_access_path, method: :post, local: true, class: "row g-3" do %>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-white-50">Nome da Instituição / Escola *</label>
+                <input type="text" name="institution_name" required class="form-control spatial-input" placeholder="Ex.: Colégio Horizonte">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-white-50">Segmento da Instituição *</label>
+                <select name="institution_type" class="form-select spatial-input">
+                  <option>Colégio Privado (Fundamental / Médio)</option>
+                  <option>Escola Pública / Rede Municipal</option>
+                  <option>Escola Técnica / Profissionalizante</option>
+                  <option>Cursinho Pré-Vestibular</option>
+                  <option>Escola de Idiomas / Cursos Livres</option>
+                  <option>Fundação / ONG Educacional</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-white-50">Seu Nome Completo *</label>
+                <input type="text" name="contact_name" required class="form-control spatial-input" placeholder="Ex.: Maria Silva">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-white-50">E-mail (será seu login após liberação) *</label>
+                <input type="email" name="contact_email" required class="form-control spatial-input" placeholder="maria@colegio.com.br">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-white-50">Telefone / WhatsApp</label>
+                <input type="text" name="phone" class="form-control spatial-input" placeholder="(11) 99999-0000">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-white-50">Perfil que Deseja Testar *</label>
+                <select name="requested_role" class="form-select spatial-input">
+                  <option value="director">Diretor(a) — Visão Gerencial Completa</option>
+                  <option value="teacher">Professor(a) — Chamada e Notas</option>
+                  <option value="student">Aluno(a) — Boletim e Frequência</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-semibold text-white-50">Mensagem / Necessidade da Escola</label>
+                <input type="text" name="message" class="form-control spatial-input" placeholder="Ex.: Gostaria de avaliar o diário de chamada e cálculo de médias.">
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-lg w-100 fw-bold text-white mt-2" style="background: linear-gradient(135deg, #f59e0b, #ea580c); border: none; border-radius: 14px;">
+                  <i class="bi bi-send-check-fill me-2"></i>Solicitar Liberação de Acesso ao Administrador
+                </button>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="spatial-glass-panel h-100 d-flex flex-column justify-content-between">
+            <div>
+              <span class="spatial-badge mb-3">
+                <i class="bi bi-key-fill"></i> Portal de Login
+              </span>
+              <h3 class="fw-bold text-white mb-3">Já possui acesso liberado pelo Administrador?</h3>
+              <p class="text-white-50 small mb-4">
+                Se você faz parte da Direção, Corpo Docente ou Alunos cadastrados — ou se o Administrador já aprovou sua solicitação de teste — acesse o portal de login abaixo.
+              </p>
+
+              <div class="p-3 rounded-4 mb-4" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);">
+                <div class="fw-bold small text-warning mb-2"><i class="bi bi-calculator me-1"></i>Regras Oficiais do Sistema Estudante</div>
+                <div class="small text-white-50 mb-1">• <strong>Média Bimestral:</strong> Soma dos pontos ÷ Nº de avaliações</div>
+                <div class="small text-white-50 mb-1">• <strong>Média Anual:</strong> (1ºB + 2ºB + 3ºB + 4ºB) ÷ 4</div>
+                <div class="small text-white-50">• <strong>Perfis:</strong> Diretor, Professor, Aluno e Funcionário</div>
+              </div>
+            </div>
+
+            <div class="d-grid gap-2">
+              <%= link_to new_user_session_path, class: "btn btn-spatial-amber btn-lg py-3 fw-bold shadow-lg" do %>
+                <i class="bi bi-box-arrow-in-right me-2"></i>Acessar Página de Login
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal for "Expandir" button on Center Coverflow Card -->
+  <div class="modal fade" id="slideExpandModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 rounded-4 overflow-hidden text-white" style="background: #181615; border: 1px solid rgba(255,255,255,0.2) !important;">
+        <div id="modalSlideHero" style="height: 240px; background-size: cover; background-position: center; position: relative;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.2), #181615);"></div>
+          <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="position-absolute bottom-0 start-0 p-4">
+            <span class="spatial-badge mb-2" id="modalSlideBadge"></span>
+            <h3 class="fw-bold mb-0" id="modalSlideTitle"></h3>
+            <div class="text-white-50 small" id="modalSlideSubtitle"></div>
+          </div>
+        </div>
+        <div class="modal-body p-4">
+          <p class="lead fs-6 text-white-50 mb-3" id="modalSlideDesc"></p>
+          <div class="p-3 rounded-3 mb-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="small text-warning fw-bold mb-1">Detalhes Técnicos e Operacionais</div>
+            <div class="small text-white" id="modalSlideDetails"></div>
+          </div>
+          <div class="small text-white-50"><i class="bi bi-geo-alt-fill text-warning me-1"></i><span id="modalSlideLocation"></span></div>
+        </div>
+        <div class="modal-footer border-top border-secondary border-opacity-25">
+          <a href="#solicitar" class="btn btn-warning fw-bold rounded-pill px-4" onclick="bootstrap.Modal.getInstance(document.getElementById('slideExpandModal')).hide()">
+            Solicitar Acesso para Testar
+          </a>
+          <%= link_to "Ir para Login", new_user_session_path, class: "btn btn-outline-light rounded-pill px-4" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive 3D Coverflow JavaScript Engine -->
+<script>
+  (() => {
+    const initCoverflow = () => {
+      const cards = Array.from(document.querySelectorAll(".coverflow-card"));
+      if (!cards.length) return;
+
+      const dots = Array.from(document.querySelectorAll(".controller-dot"));
+      const pillThumb = document.getElementById("pillThumb");
+      const pillTitle = document.getElementById("pillTitle");
+      const pillSubtitle = document.getElementById("pillSubtitle");
+      const pillBadge = document.getElementById("pillBadge");
+      const omnibarTitle = document.getElementById("omnibarTitle");
+      const autoplayIcon = document.getElementById("autoplayIcon");
+
+      let activeIndex = 0;
+      let isPlaying = true;
+      let timer = null;
+      const total = cards.length;
+
+      const computeOffset = (idx, current, len) => {
+        let diff = idx - current;
+        if (diff > len / 2) diff -= len;
+        if (diff < -len / 2) diff += len;
+        return diff;
+      };
+
+      const render = () => {
+        cards.forEach((card, idx) => {
+          const diff = computeOffset(idx, activeIndex, total);
+          if (diff === 0) card.setAttribute("data-offset", "0");
+          else if (diff === -1) card.setAttribute("data-offset", "-1");
+          else if (diff === 1) card.setAttribute("data-offset", "1");
+          else if (diff === -2) card.setAttribute("data-offset", "-2");
+          else if (diff === 2) card.setAttribute("data-offset", "2");
+          else if (diff < -2) card.setAttribute("data-offset", "hidden-left");
+          else card.setAttribute("data-offset", "hidden-right");
+        });
+
+        dots.forEach((dot, idx) => {
+          dot.classList.toggle("active", idx === activeIndex);
+        });
+
+        const activeCard = cards[activeIndex];
+        if (activeCard) {
+          const title = activeCard.dataset.title;
+          const subtitle = activeCard.dataset.subtitle;
+          const badge = activeCard.dataset.badge;
+          const image = activeCard.dataset.image;
+
+          if (pillTitle) pillTitle.textContent = title;
+          if (pillSubtitle) pillSubtitle.textContent = subtitle;
+          if (pillBadge) pillBadge.textContent = badge;
+          if (pillThumb) pillThumb.style.backgroundImage = `url('${image}')`;
+          if (omnibarTitle) omnibarTitle.textContent = `Estudante • ${title}`;
+        }
+      };
+
+      const next = () => {
+        activeIndex = (activeIndex + 1) % total;
+        render();
+      };
+
+      const prev = () => {
+        activeIndex = (activeIndex - 1 + total) % total;
+        render();
+      };
+
+      const startAutoplay = () => {
+        stopAutoplay();
+        if (!isPlaying) return;
+        timer = setInterval(next, 5200);
+      };
+
+      const stopAutoplay = () => {
+        if (timer) clearInterval(timer);
+      };
+
+      cards.forEach((card, idx) => {
+        card.addEventListener("click", (e) => {
+          const expandBtn = e.target.closest("[data-action='expand-slide']");
+          if (expandBtn && idx === activeIndex) {
+            document.getElementById("modalSlideHero").style.backgroundImage = `url('${card.dataset.image}')`;
+            document.getElementById("modalSlideBadge").textContent = card.dataset.badge;
+            document.getElementById("modalSlideTitle").textContent = card.dataset.title;
+            document.getElementById("modalSlideSubtitle").textContent = card.dataset.subtitle;
+            document.getElementById("modalSlideDesc").textContent = card.dataset.description;
+            document.getElementById("modalSlideDetails").textContent = card.dataset.details;
+            document.getElementById("modalSlideLocation").textContent = card.dataset.location;
+            new bootstrap.Modal(document.getElementById("slideExpandModal")).show();
+            return;
+          }
+          if (idx !== activeIndex) {
+            activeIndex = idx;
+            render();
+            startAutoplay();
+          }
+        });
+      });
+
+      dots.forEach((dot) => {
+        dot.addEventListener("click", () => {
+          activeIndex = parseInt(dot.dataset.goto, 10);
+          render();
+          startAutoplay();
+        });
+      });
+
+      document.getElementById("pillPrevBtn")?.addEventListener("click", () => { prev(); startAutoplay(); });
+      document.getElementById("pillNextBtn")?.addEventListener("click", () => { next(); startAutoplay(); });
+      document.getElementById("omnibarPrev")?.addEventListener("click", () => { prev(); startAutoplay(); });
+      document.getElementById("omnibarNext")?.addEventListener("click", () => { next(); startAutoplay(); });
+
+      document.getElementById("toggleAutoplayBtn")?.addEventListener("click", () => {
+        isPlaying = !isPlaying;
+        if (autoplayIcon) {
+          autoplayIcon.className = isPlaying ? "bi bi-pause-fill" : "bi bi-play-fill";
+        }
+        isPlaying ? startAutoplay() : stopAutoplay();
+      });
+
+      // Keyboard navigation
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") { prev(); startAutoplay(); }
+        if (e.key === "ArrowRight") { next(); startAutoplay(); }
+      });
+
+      // Touch swipe support
+      let startX = null;
+      const viewport = document.getElementById("coverflowViewport");
+      viewport?.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; }, { passive: true });
+      viewport?.addEventListener("touchend", (e) => {
+        if (startX === null) return;
+        const diffX = e.changedTouches[0].clientX - startX;
+        if (Math.abs(diffX) > 40) {
+          diffX > 0 ? prev() : next();
+          startAutoplay();
+        }
+        startX = null;
+      }, { passive: true });
+
+      render();
+      startAutoplay();
+    };
+
+    document.addEventListener("DOMContentLoaded", initCoverflow);
+    document.addEventListener("turbo:load", initCoverflow);
+  })();
+</script>

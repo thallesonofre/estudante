@@ -1,0 +1,89 @@
+<% content_for :page_title, "Turma #{@classroom.name} (#{@classroom.grade_level})" %>
+<% content_for :page_subtitle, "Turno #{@classroom.shift} • Sala #{@classroom.room_number} • Ano Letivo #{@classroom.academic_year}" %>
+
+<div class="row g-4">
+  <!-- Enrolled Students -->
+  <div class="col-lg-7">
+    <div class="glass-card overflow-hidden">
+      <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="fw-bold mb-0"><i class="bi bi-people-fill text-primary me-2"></i>Alunos Matriculados (<%= @students.size %>)</h5>
+        </div>
+
+        <% if current_user.director? && @available_students.any? %>
+          <%= form_with url: enroll_student_classroom_path(@classroom), method: :post, local: true, class: "d-flex gap-2" do %>
+            <select name="student_id" class="form-select form-select-sm" style="width: 210px;" required>
+              <option value="">+ Matricular aluno...</option>
+              <% @available_students.each do |st| %>
+                <option value="<%= st.id %>"><%= st.name %></option>
+              <% end %>
+            </select>
+            <button type="submit" class="btn btn-sm btn-indigo">Matricular</button>
+          <% end %>
+        <% end %>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-premium">
+          <thead>
+            <tr>
+              <th>Aluno(a)</th>
+              <th>Matrícula</th>
+              <th class="text-end">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @students.each do |st| %>
+              <tr>
+                <td>
+                  <div class="fw-bold"><%= st.name %></div>
+                  <div class="text-muted small"><%= st.email %></div>
+                </td>
+                <td><span class="badge bg-light text-dark border"><%= st.registration_number %></span></td>
+                <td class="text-end">
+                  <div class="d-inline-flex gap-1">
+                    <%= link_to report_card_path(student_id: st.id), class: "btn btn-sm btn-outline-primary rounded-3" do %>
+                      <i class="bi bi-award me-1"></i>Boletim
+                    <% end %>
+                    <% if current_user.director? %>
+                      <%= button_to unenroll_student_classroom_path(@classroom, student_id: st.id), method: :delete, class: "btn btn-sm btn-light border text-danger", title: "Remover da turma" do %>
+                        <i class="bi bi-person-dash"></i>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subjects of this Classroom -->
+  <div class="col-lg-5">
+    <div class="glass-card overflow-hidden">
+      <div class="p-3 border-bottom bg-light">
+        <h5 class="fw-bold mb-0"><i class="bi bi-book-half text-primary me-2"></i>Disciplinas da Turma (<%= @subjects.size %>)</h5>
+      </div>
+      <div class="p-3 d-flex flex-column gap-2">
+        <% @subjects.each do |sub| %>
+          <div class="p-3 rounded-3 border bg-light d-flex justify-content-between align-items-center">
+            <div>
+              <div class="fw-bold"><%= sub.name %> <span class="badge bg-white text-secondary border ms-1"><%= sub.code %></span></div>
+              <div class="text-muted small">Prof. <%= sub.teacher.name %> • <%= sub.workload_hours %>h</div>
+            </div>
+            <div class="d-flex gap-1">
+              <%= link_to attendance_registers_path(subject_id: sub.id), class: "btn btn-sm btn-white border", title: "Chamada" do %>
+                <i class="bi bi-calendar2-check text-primary"></i>
+              <% end %>
+              <%= link_to gradebooks_path(subject_id: sub.id), class: "btn btn-sm btn-white border", title: "Notas" do %>
+                <i class="bi bi-journal-bookmark text-indigo"></i>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,84 @@
+pt-BR:
+  devise:
+    confirmations:
+      confirmed: "Seu endereço de e-mail foi confirmado com sucesso."
+      send_instructions: "Você receberá um e-mail com instruções para confirmar sua conta em alguns minutos."
+      send_paranoid_instructions: "Se o seu endereço de e-mail existir em nossa base, você receberá instruções em alguns minutos."
+    failure:
+      already_authenticated: "Você já está autenticado no sistema."
+      inactive: "Sua conta ainda não foi ativada ou está aguardando liberação do Administrador."
+      invalid: "E-mail ou senha inválidos."
+      locked: "Sua conta está bloqueada."
+      last_attempt: "Você tem mais uma tentativa antes que sua conta seja bloqueada."
+      not_found_in_database: "E-mail ou senha inválidos."
+      timeout: "Sua sessão expirou. Por favor, faça login novamente para continuar."
+      unauthenticated: "Faça login com uma conta autorizada para acessar o sistema."
+      unconfirmed: "Você precisa confirmar seu endereço de e-mail antes de continuar."
+    mailer:
+      confirmation_instructions:
+        subject: "Instruções de confirmação"
+      reset_password_instructions:
+        subject: "Instruções para redefinição de senha"
+      unlock_instructions:
+        subject: "Instruções de desbloqueio"
+      email_changed:
+        subject: "E-mail alterado"
+      password_change:
+        subject: "Senha alterada"
+    omniauth_callbacks:
+      failure: "Não foi possível autenticar via %{kind} porque \"%{reason}\"."
+      success: "Autenticado com sucesso pela conta %{kind}."
+    passwords:
+      no_token: "Você não pode acessar esta página sem vir de um e-mail de redefinição de senha."
+      send_instructions: "Você receberá um e-mail com instruções sobre como redefinir sua senha em alguns minutos."
+      send_paranoid_instructions: "Se o seu e-mail existir em nosso banco de dados, você receberá um link de recuperação."
+      updated: "Sua senha foi alterada com sucesso. Você já está conectado."
+      updated_not_active: "Sua senha foi alterada com sucesso."
+    registrations:
+      destroyed: "Sua conta foi cancelada com sucesso."
+      signed_up: "Bem-vindo(a)! Seu cadastro foi realizado com sucesso."
+      signed_up_but_inactive: "Cadastro realizado, mas sua conta ainda aguarda ativação pelo Administrador."
+      signed_up_but_locked: "Cadastro realizado, mas sua conta está bloqueada."
+      signed_up_but_unconfirmed: "Uma mensagem com um link de confirmação foi enviada para o seu e-mail."
+      update_needs_confirmation: "Conta atualizada com sucesso, mas precisamos verificar seu novo endereço de e-mail."
+      updated: "Sua conta foi atualizada com sucesso."
+      updated_but_not_signed_in: "Sua conta foi atualizada, faça login novamente."
+    sessions:
+      signed_in: "Login realizado com sucesso! Bem-vindo(a) ao Sistema Estudante."
+      signed_out: "Sessão encerrada com sucesso."
+      already_signed_out: "Sessão encerrada com sucesso."
+    unlocks:
+      send_instructions: "Você receberá um e-mail com instruções para desbloquear sua conta."
+      send_paranoid_instructions: "Se sua conta existir, você receberá instruções para desbloqueá-la."
+      unlocked: "Sua conta foi desbloqueada com sucesso. Faça login para continuar."
+  errors:
+    messages:
+      already_confirmed: "já foi confirmado, tente fazer login"
+      confirmation_period_expired: "precisa ser confirmado dentro de %{period}, solicite um novo"
+      expired: "expirou, solicite um novo"
+      not_found: "não encontrado"
+      not_locked: "não estava bloqueado"
+      not_saved:
+        one: "1 erro impediu que este registro fosse salvo:"
+        other: "%{count} erros impediram que este registro fosse salvo:"
+      blank: "não pode ficar em branco"
+      taken: "já está em uso"
+      invalid: "é inválido"
+      too_short: "é muito curto (mínimo: %{count} caracteres)"
+      confirmation: "não coincide com a confirmação"
+  activerecord:
+    models:
+      user: "Usuário"
+      classroom: "Turma"
+      subject: "Disciplina"
+      assessment: "Avaliação"
+      attendance: "Chamada"
+      announcement: "Comunicado"
+      access_request: "Solicitação de Acesso"
+    attributes:
+      user:
+        name: "Nome"
+        email: "E-mail"
+        password: "Senha"
+        role: "Perfil"
+        registration_number: "Matrícula"
